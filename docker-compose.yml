@@ -1,0 +1,24 @@
+# Halibut: local Postgres with the pgvector extension.
+# Start: docker compose up -d     Stop: docker compose down
+# Data lives in the halibut-pgdata volume and survives restarts.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: halibut-db
+    environment:
+      POSTGRES_USER: halibut
+      POSTGRES_PASSWORD: halibut
+      POSTGRES_DB: halibut
+    ports:
+      - "5432:5432"
+    volumes:
+      - halibut-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U halibut -d halibut"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  halibut-pgdata:
