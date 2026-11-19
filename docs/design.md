@@ -11,9 +11,9 @@
 Related files:
 
 - [`prisma/schema.prisma`](../prisma/schema.prisma): the database schema (Prisma 7)
-- [`lib/prisma.ts`](../lib/prisma.ts): the shared Prisma client
-- [`lib/enums.ts`](../lib/enums.ts): allowed values for every "kind" column
-- [`lib/evaluation.ts`](../lib/evaluation.ts): the framework evaluation as a Zod schema
+- [`src/server/db/prisma.ts`](../src/server/db/prisma.ts): the shared Prisma client
+- [`src/lib/enums.ts`](../src/lib/enums.ts): allowed values for every "kind" column
+- [`src/features/evaluation/schemas.ts`](../src/features/evaluation/schemas.ts): the framework evaluation as a Zod schema
 - [`prompts/job-evaluation-framework.example.md`](../prompts/job-evaluation-framework.example.md): a sample framework, committed so the app works for anyone who clones the repo
 - `prompts/job-evaluation-framework.md`: your real framework and salary numbers. Ignored by git; the seed copies it into the `Framework` table
 - [`docs/open-questions.md`](./open-questions.md): backlog and accepted limitations
@@ -70,7 +70,7 @@ It has two purposes:
 | Database | PostgreSQL with pgvector, in Docker | pgvector ranks jobs by similarity to a resume |
 | ORM | Prisma 7.10 with the `pg` driver adapter | Stable, and the API most employers run. The repo's `^7.10.1` version ranges stay below 8, so Prisma 8 (still a release candidate) will not be installed by accident |
 | IDs | UUIDv7 in Postgres's native `uuid` type | Common in TypeScript codebases; time-ordered; lets ingestion link rows before saving |
-| Enums | None in the database | Every "kind" column is text. Allowed values live in `enums.ts` and are checked before each write, so adding a value needs no migration |
+| Enums | None in the database | Every "kind" column is text. Allowed values live in `src/lib/enums.ts` and are checked before each write, so adding a value needs no migration |
 | Coordinates | Plain `Float` latitude and longitude | Precise enough many times over; no PostGIS |
 | Job sources | JSearch, Larajobs RSS, Gmail alert emails | The boards themselves have no usable search API (section 5) |
 | Matching | Embeddings from OpenAI's `text-embedding-3-small` (1,536 numbers each) through the AI SDK's `embed` and `embedMany`, compared at query time | Ranks by meaning, cheaply; no stored score because the score depends on the resume. Claude does not offer embeddings, so this is a second provider |
@@ -305,7 +305,7 @@ When a job is opened, Halibut asks Claude to evaluate it:
 
 - **Prompt:** the text of the active framework (the newest `Framework` row) as
   the system prompt, and the posting as the user message.
-- **Output:** an object matching `jobEvaluationSchema` in `evaluation.ts`,
+- **Output:** an object matching `jobEvaluationSchema` in `src/features/evaluation/schemas.ts`,
   which follows the framework's required format A to H: executive summary,
   technical alignment, engineering environment, compensation and logistics,
   red flags and unknowns (kept separate), career trajectory, interview
@@ -379,7 +379,7 @@ local database and that ignored file, keep a backup (for example `pg_dump`).
   have only a creation time.
 - **Text "kind" columns** and where their allowed values are defined:
 
-| Column | Enum in `enums.ts` |
+| Column | Enum in `src/lib/enums.ts` |
 |---|---|
 | `Job.roleCategory` | `RoleCategory` |
 | `Job.workMode` | `WorkMode` |
@@ -608,15 +608,15 @@ Describes the repo after the pull request that adds this document (branch
 
 | Area | What is there |
 |---|---|
-| Next.js | 16.4.6, App Router in `app/` at the repo root (no `src/` folder). `next.config.ts` turns on `cacheComponents` and `partialPrefetching`. `app/layout.tsx` and `app/page.tsx` are still the create-next-app defaults, including the "Create Next App" title |
-| React and TypeScript | React 19.3.0, TypeScript 5, strict mode. The import alias `@/*` points at the repo root |
+| Next.js | 16.4.6, App Router in `src/app/`, with feature code in `src/features/<feature>` and shared server code in `src/server`. `next.config.ts` turns on `cacheComponents` and `partialPrefetching`. `src/app/layout.tsx` and `src/app/page.tsx` are still the create-next-app defaults, including the "Create Next App" title |
+| React and TypeScript | React 19.3.0, TypeScript 5, strict mode. The import alias `@/*` points at `src/`, and `@generated/*` points at `generated/` |
 | Styling | Tailwind CSS 4.3.3, loaded through the `@tailwindcss/turbopack` loader in `next.config.ts` rather than a PostCSS config |
 | Linting | ESLint 9 with `eslint-config-next` |
 | Prisma | `prisma`, `@prisma/client` and `@prisma/adapter-pg` at 7.10.1, plus `pg` 8.23 and `dotenv` |
-| Prisma client | `lib/prisma.ts` creates one client with the `PrismaPg` adapter and reuses it across hot reloads. This is the client every server file should import |
+| Prisma client | `src/server/db/prisma.ts` creates one client with the `PrismaPg` adapter and reuses it across hot reloads. It imports `server-only`, so client code can't import it. This is the client every server file should import |
 | Prisma config | `prisma.config.ts` reads `DATABASE_URL`, sets the migrations folder, and runs `prisma/seed.ts` with `tsx` for `prisma db seed` |
-| Schema | `prisma/schema.prisma` has the ten Halibut models and Better Auth's four. The client is generated to `generated/prisma` at the repo root, which is ignored by git, and imported as `@/generated/prisma/client` |
-| Validation and evaluation | `lib/enums.ts` and `lib/evaluation.ts`, using `zod` |
+| Schema | `prisma/schema.prisma` has the ten Halibut models and Better Auth's four. The client is generated to `generated/prisma` at the repo root, which is ignored by git, and imported as `@generated/prisma/client` |
+| Validation and evaluation | `src/lib/enums.ts` and `src/features/evaluation/schemas.ts`, using `zod` |
 | Seed | `prisma/seed.ts`: three search areas and the first framework version, for the account in `SEED_USER_EMAIL` |
 | Framework | `prompts/job-evaluation-framework.example.md` is committed. Your own `prompts/job-evaluation-framework.md` is ignored by git |
 | Local database | `docker-compose.yml` (Postgres 16 with pgvector) and `.env.example` |
@@ -628,7 +628,7 @@ Describes the repo after the pull request that adds this document (branch
 | Item | Needed for |
 |---|---|
 | Migrations | The database |
-| `better-auth`, `lib/auth.ts`, an account-creation command, a login page, `proxy.ts` and `verifySession()` | Users and login (section 4) |
+| `better-auth`, `src/server/auth.ts`, an account-creation command, a login page, `src/proxy.ts` and `verifySession()` | Users and login (section 4) |
 | The Vercel AI SDK (`ai`), its Anthropic provider, and `@ai-sdk/openai` for embeddings | The evaluation, email parsing and matching |
 | shadcn/ui | The UI components. The repo loads Tailwind through the Turbopack loader, not PostCSS, so check that `shadcn init` works with that setup first |
 | `concurrently` and a scheduler library | Running the worker next to the app |
@@ -689,7 +689,7 @@ the API keys.
 | The repo at commit `a7a008f`: installed packages, config files and folder layout | Read; section 13 describes it |
 | This branch in the repo: `prisma validate` and `prisma generate`, `tsc --noEmit` on the whole project (after `next typegen`), and ESLint on the new files | Pass |
 | `prisma validate` and `prisma generate` on Prisma 7.10.1, with the repo's generator settings | Pass |
-| `enums.ts`, `evaluation.ts` and `seed.ts` compile under TypeScript strict mode | Pass |
+| `enums.ts`, `schemas.ts` (evaluation) and `seed.ts` compile under TypeScript strict mode | Pass |
 | Seed script against Postgres 16, through `prisma db seed` | Three search areas, no duplicates on re-runs. The framework is read from the example file, then from the private file once it exists; a new version is saved only when the file changes. Refuses to run when the account in `SEED_USER_EMAIL` does not exist |
 | Better Auth 1.7.25 against Postgres 16 | Sign-up is refused while turned off; an account created through the internal adapter can sign in; a wrong password is rejected |
 | Two users in the same database | Both can hold the same company, fingerprint, sighting and search area label; each sees only their own jobs; deleting one user removes all of their data and leaves the other's untouched |
