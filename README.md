@@ -38,7 +38,7 @@ Each feature gets its own folder in `src/features/<feature>`. `src/app` holds on
 
 ## Prerequisites
 
-- Node 22
+- Node 22.22.1 or later 22.x, or Node 24+ (`.nvmrc` pins 22)
 - Docker (for Postgres with pgvector)
 - API keys, as features land: Anthropic (evaluation), OpenAI (embeddings), JSearch (paid job search), and a Google Cloud project for Gmail and geocoding. `.env.example` lists them.
 
@@ -83,6 +83,12 @@ docker exec -it halibut-db psql -U halibut -d halibut  # SQL shell inside the co
 In psql, `\dt` lists the tables, `\dx` lists the extensions (`vector` should be there), and `\q` quits. Table names with capital letters need double quotes, for example `SELECT label FROM "SearchArea";`.
 
 Run `npm run typecheck` to typecheck. It runs `npx next typegen` first, because `tsc --noEmit` needs Next.js's route types.
+
+Prettier formats the code. `npm install` sets up a pre-commit hook that formats staged files, `npm run format` formats the whole repo, and `npm run format:check` lists unformatted files (CI runs it). To keep `git blame` from pointing at the one-time format commit, run this once per clone:
+
+```sh
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
 
 ## Privacy
 

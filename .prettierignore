@@ -1,0 +1,8 @@
+.next/
+generated/
+coverage/
+package-lock.json
+# vendored agent skills
+.agents/
+.claude/skills/
+.windsurf/

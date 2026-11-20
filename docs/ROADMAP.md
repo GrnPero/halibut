@@ -19,7 +19,7 @@ Before any feature work.
 - [x] sc-165: `AGENTS.md` rules + this roadmap (PR #3)
 - [x] sc-166: Claude review workflow + PR template (PR #4)
 - [x] sc-167: CI (lint, typecheck, build) (PR #5)
-- [ ] sc-168: Prettier + Husky + format check, after sc-167
+- [x] sc-168: Prettier + Husky + format check (PR #6)
 - [ ] sc-169: Vitest in CI, after sc-168
 
 ### 2. Skeleton

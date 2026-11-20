@@ -21,9 +21,27 @@ const prisma = new PrismaClient({ adapter });
 
 // Approximate city centers. Close enough for a 50-mile radius.
 const SEARCH_AREAS = [
-  { label: "Pomona", latitude: 34.0551, longitude: -117.75, radiusMiles: 50, isDefault: true },
-  { label: "Los Angeles", latitude: 34.0522, longitude: -118.2437, radiusMiles: 50, isDefault: false },
-  { label: "Redlands", latitude: 34.0556, longitude: -117.1825, radiusMiles: 50, isDefault: false },
+  {
+    label: "Pomona",
+    latitude: 34.0551,
+    longitude: -117.75,
+    radiusMiles: 50,
+    isDefault: true,
+  },
+  {
+    label: "Los Angeles",
+    latitude: 34.0522,
+    longitude: -118.2437,
+    radiusMiles: 50,
+    isDefault: false,
+  },
+  {
+    label: "Redlands",
+    latitude: 34.0556,
+    longitude: -117.1825,
+    radiusMiles: 50,
+    isDefault: false,
+  },
 ];
 
 // Your real framework is git-ignored. The example is committed so the app
@@ -43,7 +61,8 @@ type FrameworkFile = {
 function readFrameworkFile(path: string): FrameworkFile {
   const raw = readFileSync(path, "utf8");
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-  if (!match) throw new Error(`${path} must start with a --- block of salary numbers`);
+  if (!match)
+    throw new Error(`${path} must start with a --- block of salary numbers`);
   const numbers: Record<string, number> = {};
   for (const line of match[1].split(/\r?\n/)) {
     const pair = line.match(/^\s*(\w+)\s*:\s*(\d+)\s*$/);
@@ -62,9 +81,13 @@ function readFrameworkFile(path: string): FrameworkFile {
 
 async function findSeedUser() {
   const email = process.env.SEED_USER_EMAIL;
-  if (!email) throw new Error("Set SEED_USER_EMAIL in .env to the account to seed.");
+  if (!email)
+    throw new Error("Set SEED_USER_EMAIL in .env to the account to seed.");
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new Error(`No account for ${email}. Create the account first, then run the seed.`);
+  if (!user)
+    throw new Error(
+      `No account for ${email}. Create the account first, then run the seed.`,
+    );
   return user;
 }
 
@@ -76,13 +99,20 @@ async function seedSearchAreas(userId: string) {
       create: { ...area, userId },
     });
   }
-  console.log(`Search areas for this user: ${await prisma.searchArea.count({ where: { userId } })}`);
+  console.log(
+    `Search areas for this user: ${await prisma.searchArea.count({ where: { userId } })}`,
+  );
 }
 
 async function seedFramework(userId: string) {
-  const path = existsSync(PRIVATE_FRAMEWORK) ? PRIVATE_FRAMEWORK : EXAMPLE_FRAMEWORK;
+  const path = existsSync(PRIVATE_FRAMEWORK)
+    ? PRIVATE_FRAMEWORK
+    : EXAMPLE_FRAMEWORK;
   const file = readFrameworkFile(path);
-  const latest = await prisma.framework.findFirst({ where: { userId }, orderBy: { createdAt: "desc" } });
+  const latest = await prisma.framework.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
   const unchanged =
     latest !== null &&
     latest.content === file.content &&
