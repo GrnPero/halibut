@@ -82,7 +82,7 @@ docker exec -it halibut-db psql -U halibut -d halibut  # SQL shell inside the co
 
 In psql, `\dt` lists the tables, `\dx` lists the extensions (`vector` should be there), and `\q` quits. Table names with capital letters need double quotes, for example `SELECT label FROM "SearchArea";`.
 
-`npx tsc --noEmit` needs Next.js's route types first: `next dev` and `next build` create them, or run `npx next typegen`.
+Run `npm run typecheck` to typecheck. It runs `npx next typegen` first, because `tsc --noEmit` needs Next.js's route types.
 
 ## Privacy
 
