@@ -44,7 +44,7 @@ npm run dev                   # http://localhost:3000
 npm run build && npm run lint
 npm run typecheck             # next typegen && tsc --noEmit
 npm test                      # Vitest (sc-169)
-npm run format                # Prettier; format:check only lists unformatted files (sc-168)
+npm run format                # Prettier; format:check only lists unformatted files
 ```
 
 If another Postgres already holds port 5432, Prisma connects to it and fails with errors like `type "vector" does not exist`. Stop that server first; the README has the details.

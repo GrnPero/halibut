@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Your real evaluation framework (the example is committed)
 /prompts/job-evaluation-framework.md
+
+# Personal editor settings (format on save lives here)
+/.vscode/
