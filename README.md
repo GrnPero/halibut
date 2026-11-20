@@ -84,6 +84,12 @@ In psql, `\dt` lists the tables, `\dx` lists the extensions (`vector` should be 
 
 Run `npm run typecheck` to typecheck. It runs `npx next typegen` first, because `tsc --noEmit` needs Next.js's route types.
 
+Prettier formats the code. `npm install` sets up a pre-commit hook that formats staged files, `npm run format` formats the whole repo, and `npm run format:check` lists unformatted files (CI runs it). To keep `git blame` from pointing at the one-time format commit, run this once per clone:
+
+```sh
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ## Privacy
 
 - **The repo is public.** Never commit `.env`, resume files, the applications CSV, or `prompts/job-evaluation-framework.md`. Your framework and salary thresholds live only in that ignored file and your local database, so back the database up (for example with `pg_dump`).

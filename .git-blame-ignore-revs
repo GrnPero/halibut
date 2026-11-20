@@ -1,0 +1,7 @@
+# Commits that git blame skips: bulk reformatting with no content changes.
+# Turn it on once per clone:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub's blame view reads this file automatically.
+
+# Format the whole repo with Prettier [sc-168]
+4f208c53cc528bc07761c2ad0573a6da8dc66959
