@@ -6,6 +6,7 @@ These are loose screen ideas, not final designs. See **Open questions** and **De
 ---
 
 ## Global layout
+
 Shared layout in `src/app/layout.tsx`, used by every page:
 
 ```
@@ -19,6 +20,7 @@ Shared layout in `src/app/layout.tsx`, used by every page:
 ```
 
 ### Nav (global, identical everywhere)
+
 - **Left: logo slot + "Halibut" wordmark.**
   - For now: the halibut favicon at ~28–32px.
   - Later: a hand-drawn halibut (the girlfriend's art). Keep the slot square, and keep the logo in a single file (`public/logo.svg` or `.png`) so swapping it is a one-file change.
@@ -27,42 +29,51 @@ Shared layout in `src/app/layout.tsx`, used by every page:
 - No per-page buttons in the nav.
 
 ### Page header (per page)
+
 - Page title on the left, that page's action buttons on the right.
 - This is where "Search more" (Home) and Import/Export (Applications) go.
 
 ---
 
 ## 1. Home / Jobs — `/`
+
 Main job feed, one feed per resume.
 
 **Page header**
+
 - Title: Jobs
 - Action: **Search more** (fetches new jobs from every source, for every resume)
 
 **Resume tabs** (Home only, not in the nav)
+
 - One tab per resume. **Primary first, then the rest alphabetically.**
 - Last tab: **"+ Add resume"** (opens the same Upload Resume modal).
 
 **Body**
+
 - Full-width list of job rows ranked by match to the active resume. Row shows title, company, location/remote, salary if known, match score, posted date.
 - Clicking a row opens the **Job Detail modal** (screen 4).
 
 ---
 
 ## 2. Applications — `/applications`
+
 Application tracking, modeled on the "Applications 2026" Google Sheets tab.
 
 **Page header**
+
 - Title: Applications
 - Actions: **Export** (CSV, Google Sheets) and **Import** (CSV, Google Sheets)
 
 **Body**
+
 - Table: company, job title, status, applied date, last update, link.
 - Sortable; filter by status.
 
 ---
 
 ## 3. Upload Resume — modal
+
 - Opened from the nav button or the "+ Add resume" tab.
 - File picker (PDF/DOCX), resume name, **Set as primary** checkbox.
 - On save: the resume is parsed and embedded, and a new tab appears on Home.
@@ -70,14 +81,17 @@ Application tracking, modeled on the "Applications 2026" Google Sheets tab.
 ---
 
 ## 4. Job Detail — modal
+
 Quick in-and-out view of one job. Opens over the Home list.
 
 **Contents**
+
 - Job info: title, company, location/remote, salary, source, posted date, link to the original posting
 - **AI evaluation against the job framework**: verdict + reasoning
 - Actions: **Mark as applied** (creates an Application), **Dismiss / Not interested**
 
 **Interaction**
+
 - **Prev / Next arrows** to move through the list without closing the modal
 - Keyboard: `←` / `→` (or `j` / `k`) for prev/next, `Esc` to close
 - Closing returns to the same scroll position in the list
@@ -86,6 +100,7 @@ Quick in-and-out view of one job. Opens over the Home list.
 ---
 
 ## 5. Login — `/login`
+
 - Email and password. No sign-up link: accounts are created from the command line.
 - Use a ready-made login form rather than designing one: shadcn/ui's `login-01` block, wired to Better Auth, or Better Auth UI's shadcn components.
 - After signing in, go to Jobs.
@@ -93,6 +108,7 @@ Quick in-and-out view of one job. Opens over the Home list.
 ---
 
 ## Open questions
+
 1. **Applications: one master list or one list per resume?**
    - Decided: one master list, with no resume column. Applying happens on the employer's site, so Halibut doesn't know which resume was sent. Per-resume lists would also make it easy to lose track of whether you've already applied somewhere.
 2. **Import button: permanent or one-time?**
@@ -103,6 +119,7 @@ Quick in-and-out view of one job. Opens over the Home list.
    - Decided: yes. Not interested hides the job from every tab.
 
 ### Still open (likely backlog tickets)
+
 These have data behind them in the schema but no screen yet. None of them change the schema.
 
 5. **Show hidden jobs:** a toggle on Jobs that shows jobs hidden by the hard filters or by Not interested, with the reason on each. It's the only way to undo a Not interested.
@@ -115,6 +132,7 @@ These have data behind them in the schema but no screen yet. None of them change
 ---
 
 ## Design notes (pushback on the original sketch)
+
 - **Hamburger dropdown → visible nav links.** On a desktop app with only two pages, a hamburger menu hides both main destinations behind an extra click. Hamburgers are a mobile pattern.
 - **Page actions don't go in the nav.** If the nav's buttons change per page (Search more vs Import/Export), it stops being a stable landmark. Keep the nav identical everywhere and give each page its own header bar.
 - **The AI evaluation needs a home.** It's the main reason for Halibut over a plain job board, and the original sketch had no place for it. It now lives in the Job Detail modal.

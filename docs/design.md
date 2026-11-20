@@ -1,12 +1,12 @@
 # Halibut design doc
 
-| | |
-|---|---|
-| Status | Approved. Planning decisions are made. The repo has the skeleton, schema, seed and docs; no feature code yet (section 13) |
-| Date | 2026-11-17 |
-| Owner | Rodrigo |
-| Repository | [`GrnPero/halibut`](https://github.com/GrnPero/halibut), public |
-| Scope | Version 1 (V1) |
+|            |                                                                                                                           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Status     | Approved. Planning decisions are made. The repo has the skeleton, schema, seed and docs; no feature code yet (section 13) |
+| Date       | 2026-11-17                                                                                                                |
+| Owner      | Rodrigo                                                                                                                   |
+| Repository | [`GrnPero/halibut`](https://github.com/GrnPero/halibut), public                                                           |
+| Scope      | Version 1 (V1)                                                                                                            |
 
 Related files:
 
@@ -60,28 +60,28 @@ It has two purposes:
 
 ## 3. Decisions made
 
-| Area | Decision | Why |
-|---|---|---|
-| Name | Halibut | A fish with a minimum keep size: keep the good ones, throw the rest back |
-| Where it runs | Local only, no hosting | Removes Vercel and Neon from the stack |
-| Users | Multi-user with a login (Better Auth, email and password). Accounts are created from the command line; sign-up is off. Every Halibut table has a `userId`, and users share nothing | So a second person can use it; cheap to add while the tables are empty |
-| App | Next.js 16.4 (App Router, Cache Components on), React 19.3, TypeScript 5, Tailwind 4.3, shadcn/ui | The stack to learn and put on a resume. shadcn/ui is not installed yet |
-| Server code | Server Actions and Route Handlers | Standard for the App Router |
-| Database | PostgreSQL with pgvector, in Docker | pgvector ranks jobs by similarity to a resume |
-| ORM | Prisma 7.10 with the `pg` driver adapter | Stable, and the API most employers run. The repo's `^7.10.1` version ranges stay below 8, so Prisma 8 (still a release candidate) will not be installed by accident |
-| IDs | UUIDv7 in Postgres's native `uuid` type | Common in TypeScript codebases; time-ordered; lets ingestion link rows before saving |
-| Enums | None in the database | Every "kind" column is text. Allowed values live in `src/lib/enums.ts` and are checked before each write, so adding a value needs no migration |
-| Coordinates | Plain `Float` latitude and longitude | Precise enough many times over; no PostGIS |
-| Job sources | JSearch, Larajobs RSS, Gmail alert emails | The boards themselves have no usable search API (section 5) |
-| Matching | Embeddings from OpenAI's `text-embedding-3-small` (1,536 numbers each) through the AI SDK's `embed` and `embedMany`, compared at query time | Ranks by meaning, cheaply; no stored score because the score depends on the resume. Claude does not offer embeddings, so this is a second provider |
-| Evaluation | Claude through the Vercel AI SDK, output checked with Zod | Structured, storable verdicts |
-| Models | Opus 5.5 (`claude-opus-5-5`) for the evaluation, Haiku 5.5 (`claude-haiku-5-5`) for email parsing and classification | Spend on the judgment, save on the bulk work |
-| Resumes | Several, one tab each, over one shared pool of jobs | A job that fits two resumes is still one job |
-| Fetching | The Search more button runs every source. A daily scheduler, off by default through the `SCHEDULER_ENABLED` setting in `.env`, runs only the free sources (Larajobs and Gmail). Nothing fetches JSearch unless you click | No always-on machine; JSearch requests are only spent when asked for |
-| Applications | The database is the source of truth; the sheet is imported once and exported one way | Two-way sync is not worth the trouble |
-| Framework | Stored in the database (`Framework` table), one row per version, including the salary thresholds. Seeded from a git-ignored file | Keeps the framework and salary targets out of the public repo, versions it automatically, and keeps the thresholds out of code |
-| Python | Deferred to a possible V2 | Only needed for direct scraping |
-| Budget | About $25 a month for JSearch, plus LLM and embedding usage | Agreed up front |
+| Area          | Decision                                                                                                                                                                                                                 | Why                                                                                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name          | Halibut                                                                                                                                                                                                                  | A fish with a minimum keep size: keep the good ones, throw the rest back                                                                                            |
+| Where it runs | Local only, no hosting                                                                                                                                                                                                   | Removes Vercel and Neon from the stack                                                                                                                              |
+| Users         | Multi-user with a login (Better Auth, email and password). Accounts are created from the command line; sign-up is off. Every Halibut table has a `userId`, and users share nothing                                       | So a second person can use it; cheap to add while the tables are empty                                                                                              |
+| App           | Next.js 16.4 (App Router, Cache Components on), React 19.3, TypeScript 5, Tailwind 4.3, shadcn/ui                                                                                                                        | The stack to learn and put on a resume. shadcn/ui is not installed yet                                                                                              |
+| Server code   | Server Actions and Route Handlers                                                                                                                                                                                        | Standard for the App Router                                                                                                                                         |
+| Database      | PostgreSQL with pgvector, in Docker                                                                                                                                                                                      | pgvector ranks jobs by similarity to a resume                                                                                                                       |
+| ORM           | Prisma 7.10 with the `pg` driver adapter                                                                                                                                                                                 | Stable, and the API most employers run. The repo's `^7.10.1` version ranges stay below 8, so Prisma 8 (still a release candidate) will not be installed by accident |
+| IDs           | UUIDv7 in Postgres's native `uuid` type                                                                                                                                                                                  | Common in TypeScript codebases; time-ordered; lets ingestion link rows before saving                                                                                |
+| Enums         | None in the database                                                                                                                                                                                                     | Every "kind" column is text. Allowed values live in `src/lib/enums.ts` and are checked before each write, so adding a value needs no migration                      |
+| Coordinates   | Plain `Float` latitude and longitude                                                                                                                                                                                     | Precise enough many times over; no PostGIS                                                                                                                          |
+| Job sources   | JSearch, Larajobs RSS, Gmail alert emails                                                                                                                                                                                | The boards themselves have no usable search API (section 5)                                                                                                         |
+| Matching      | Embeddings from OpenAI's `text-embedding-3-small` (1,536 numbers each) through the AI SDK's `embed` and `embedMany`, compared at query time                                                                              | Ranks by meaning, cheaply; no stored score because the score depends on the resume. Claude does not offer embeddings, so this is a second provider                  |
+| Evaluation    | Claude through the Vercel AI SDK, output checked with Zod                                                                                                                                                                | Structured, storable verdicts                                                                                                                                       |
+| Models        | Opus 5.5 (`claude-opus-5-5`) for the evaluation, Haiku 5.5 (`claude-haiku-5-5`) for email parsing and classification                                                                                                     | Spend on the judgment, save on the bulk work                                                                                                                        |
+| Resumes       | Several, one tab each, over one shared pool of jobs                                                                                                                                                                      | A job that fits two resumes is still one job                                                                                                                        |
+| Fetching      | The Search more button runs every source. A daily scheduler, off by default through the `SCHEDULER_ENABLED` setting in `.env`, runs only the free sources (Larajobs and Gmail). Nothing fetches JSearch unless you click | No always-on machine; JSearch requests are only spent when asked for                                                                                                |
+| Applications  | The database is the source of truth; the sheet is imported once and exported one way                                                                                                                                     | Two-way sync is not worth the trouble                                                                                                                               |
+| Framework     | Stored in the database (`Framework` table), one row per version, including the salary thresholds. Seeded from a git-ignored file                                                                                         | Keeps the framework and salary targets out of the public repo, versions it automatically, and keeps the thresholds out of code                                      |
+| Python        | Deferred to a possible V2                                                                                                                                                                                                | Only needed for direct scraping                                                                                                                                     |
+| Budget        | About $25 a month for JSearch, plus LLM and embedding usage                                                                                                                                                              | Agreed up front                                                                                                                                                     |
 
 Removed during schema review, so nobody adds them back by accident: a stored
 match score, `distanceMiles`, `closedAt`, `talkingMyselfIn`, `sortOrder`,
@@ -163,22 +163,22 @@ however it is triggered.
 
 **Used in V1**
 
-| Source | What it provides | Notes |
-|---|---|---|
-| JSearch API | Listings that Google for Jobs has indexed from LinkedIn, Indeed, ZipRecruiter, Glassdoor and company career pages | Paid: about $25 for 10,000 requests a month (200 a month free). Each result names its publisher. It returns what Google indexed, not each board's full catalog |
-| Larajobs RSS | Laravel jobs | Free feed at `larajobs.com/feed` |
-| Gmail job alerts | Whatever LinkedIn, Indeed and ZipRecruiter email | A Gmail filter puts alerts under one label; Halibut reads that label, read-only |
+| Source           | What it provides                                                                                                  | Notes                                                                                                                                                          |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JSearch API      | Listings that Google for Jobs has indexed from LinkedIn, Indeed, ZipRecruiter, Glassdoor and company career pages | Paid: about $25 for 10,000 requests a month (200 a month free). Each result names its publisher. It returns what Google indexed, not each board's full catalog |
+| Larajobs RSS     | Laravel jobs                                                                                                      | Free feed at `larajobs.com/feed`                                                                                                                               |
+| Gmail job alerts | Whatever LinkedIn, Indeed and ZipRecruiter email                                                                  | A Gmail filter puts alerts under one label; Halibut reads that label, read-only                                                                                |
 
 **Ruled out**
 
-| Option | Why not |
-|---|---|
-| Indeed API | The public job search API is retired |
-| ZipRecruiter API | Partner-only, for posting jobs |
-| LinkedIn API | Partner-only, for posting jobs |
-| Handshake | No public API; aimed at early-career candidates |
-| Scraping the big boards | Against their terms, heavily blocked, brittle. Revisit as V2 only if V1 misses jobs |
-| Company career boards (Greenhouse, Lever, Ashby) | Works one company at a time; pushed to the backlog |
+| Option                                           | Why not                                                                             |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Indeed API                                       | The public job search API is retired                                                |
+| ZipRecruiter API                                 | Partner-only, for posting jobs                                                      |
+| LinkedIn API                                     | Partner-only, for posting jobs                                                      |
+| Handshake                                        | No public API; aimed at early-career candidates                                     |
+| Scraping the big boards                          | Against their terms, heavily blocked, brittle. Revisit as V2 only if V1 misses jobs |
+| Company career boards (Greenhouse, Lever, Ashby) | Works one company at a time; pushed to the backlog                                  |
 
 **Limits to plan around**
 
@@ -223,19 +223,19 @@ Each fetch does this for each source:
 9. **Apply hard filters.** Set `Job.passedHardFilters` and `Job.filterReasons`.
    Failing jobs are hidden, never deleted.
 10. **Embed.** If the job has a description, request its embedding and store it
-   in `Job.embedding`.
+    in `Job.embedding`.
 11. **Finish the run.** Record `fetched`, `inserted` and `duplicates`, and set
     the status to `succeeded`, or to `failed` with the error message.
 
 **How each source identifies a listing** (`JobSighting.externalId`):
 
-| Source | External ID |
-|---|---|
-| JSearch | The job ID in the result |
-| Larajobs RSS | The feed item's `guid`, or its link |
+| Source       | External ID                                                                                                    |
+| ------------ | -------------------------------------------------------------------------------------------------------------- |
+| JSearch      | The job ID in the result                                                                                       |
+| Larajobs RSS | The feed item's `guid`, or its link                                                                            |
 | Alert emails | The board's own job ID from the link, after unwrapping tracking redirects; otherwise a hash of the cleaned URL |
-| Manual entry | A hash of the pasted URL |
-| Sheet import | A hash of company, position and date applied |
+| Manual entry | A hash of the pasted URL                                                                                       |
+| Sheet import | A hash of company, position and date applied                                                                   |
 
 `source` plus `externalId` is unique, so fetching the same listing again
 updates the sighting instead of adding a duplicate.
@@ -345,18 +345,18 @@ own.
 
 Ten Halibut tables, plus Better Auth's four (section 4). `Job` is the center.
 
-| Table | Holds | Why it exists |
-|---|---|---|
-| `Company` | One row per employer | So a company is stored once |
-| `Job` | One row per posting | The center of the app |
-| `JobSighting` | One row per place a job was found | Deduplication across sources |
-| `Resume` | One row per resume version | Each is a tab; jobs are ranked against it |
-| `Evaluation` | The framework verdict for a job | Saved so it is not paid for twice |
-| `Framework` | Your evaluation framework and salary thresholds, one row per version | Keeps them out of the public repo and versions them; the newest row is active |
-| `Application` | The Applications 2026 sheet tab | Tracking, and the export back to Sheets |
-| `SearchArea` | Home bases for the radius filter | Pomona, Los Angeles, Redlands; editable |
-| `IngestRun` | A log line per fetch | Shows when a source broke and what each run found |
-| `ProcessedEmail` | Which alert emails are already handled | So no email is processed, or paid for, twice |
+| Table            | Holds                                                                | Why it exists                                                                 |
+| ---------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `Company`        | One row per employer                                                 | So a company is stored once                                                   |
+| `Job`            | One row per posting                                                  | The center of the app                                                         |
+| `JobSighting`    | One row per place a job was found                                    | Deduplication across sources                                                  |
+| `Resume`         | One row per resume version                                           | Each is a tab; jobs are ranked against it                                     |
+| `Evaluation`     | The framework verdict for a job                                      | Saved so it is not paid for twice                                             |
+| `Framework`      | Your evaluation framework and salary thresholds, one row per version | Keeps them out of the public repo and versions them; the newest row is active |
+| `Application`    | The Applications 2026 sheet tab                                      | Tracking, and the export back to Sheets                                       |
+| `SearchArea`     | Home bases for the radius filter                                     | Pomona, Los Angeles, Redlands; editable                                       |
+| `IngestRun`      | A log line per fetch                                                 | Shows when a source broke and what each run found                             |
+| `ProcessedEmail` | Which alert emails are already handled                               | So no email is processed, or paid for, twice                                  |
 
 Every Halibut table has a `userId` linking it to `User`. Apart from that link,
 `SearchArea` and `ProcessedEmail` have no relations to other tables on purpose.
@@ -379,16 +379,16 @@ local database and that ignored file, keep a backup (for example `pg_dump`).
   have only a creation time.
 - **Text "kind" columns** and where their allowed values are defined:
 
-| Column | Enum in `src/lib/enums.ts` |
-|---|---|
-| `Job.roleCategory` | `RoleCategory` |
-| `Job.workMode` | `WorkMode` |
-| `Job.salaryPeriod` | `SalaryPeriod` |
-| `Job.employmentType` | `EmploymentType` |
-| `JobSighting.source`, `IngestRun.source` | `SourceKind` |
-| `Evaluation.verdict` | `Verdict` |
-| `Application.status` | `ApplicationStatus` |
-| `IngestRun.status` | `RunStatus` |
+| Column                                   | Enum in `src/lib/enums.ts` |
+| ---------------------------------------- | -------------------------- |
+| `Job.roleCategory`                       | `RoleCategory`             |
+| `Job.workMode`                           | `WorkMode`                 |
+| `Job.salaryPeriod`                       | `SalaryPeriod`             |
+| `Job.employmentType`                     | `EmploymentType`           |
+| `JobSighting.source`, `IngestRun.source` | `SourceKind`               |
+| `Evaluation.verdict`                     | `Verdict`                  |
+| `Application.status`                     | `ApplicationStatus`        |
+| `IngestRun.status`                       | `RunStatus`                |
 
 `JobSighting.publisher` is deliberately free text, because it holds whatever
 name the source reports.
@@ -451,16 +451,16 @@ radius. The drive is longer than the number suggests.
 The full spec is in [`screen-spec.md`](./screen-spec.md). This section maps each screen to the
 data behind it.
 
-| Screen | Data it reads | Data it writes |
-|---|---|---|
-| Global nav: logo, Jobs, Applications, Upload Resume | None | None |
-| Jobs (`/`): resume tabs | `Resume`, ordered default first, then by label | None |
-| Jobs: ranked list | `Job` with `Company`, ranked by the query in section 7 | None |
-| Jobs: Search more | `IngestRun` for progress | Everything in section 6 |
-| Job Detail modal | `Job`, `Company`, `JobSighting` (source and publisher), newest `Evaluation` | `Job.viewedAt`; a new `Evaluation`; an `Application` when marked as applied; `Job.dismissedAt` when marked Not interested |
-| Applications (`/applications`) | `Application` with `Job` and `Company` | Status and other edits |
-| Applications: Import and Export | The sheet's CSV | `Company`, `Job`, `JobSighting`, `Application` |
-| Upload Resume modal | None | A `Resume` with its text and embedding |
+| Screen                                              | Data it reads                                                               | Data it writes                                                                                                            |
+| --------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Global nav: logo, Jobs, Applications, Upload Resume | None                                                                        | None                                                                                                                      |
+| Jobs (`/`): resume tabs                             | `Resume`, ordered default first, then by label                              | None                                                                                                                      |
+| Jobs: ranked list                                   | `Job` with `Company`, ranked by the query in section 7                      | None                                                                                                                      |
+| Jobs: Search more                                   | `IngestRun` for progress                                                    | Everything in section 6                                                                                                   |
+| Job Detail modal                                    | `Job`, `Company`, `JobSighting` (source and publisher), newest `Evaluation` | `Job.viewedAt`; a new `Evaluation`; an `Application` when marked as applied; `Job.dismissedAt` when marked Not interested |
+| Applications (`/applications`)                      | `Application` with `Job` and `Company`                                      | Status and other edits                                                                                                    |
+| Applications: Import and Export                     | The sheet's CSV                                                             | `Company`, `Job`, `JobSighting`, `Application`                                                                            |
+| Upload Resume modal                                 | None                                                                        | A `Resume` with its text and embedding                                                                                    |
 
 Column mapping for the screens:
 
@@ -500,25 +500,25 @@ each build step reaches them; none of them change the schema.
 
 ### 11A. Schema changes the screens asked for (settled)
 
-| Screen feature | Outcome |
-|---|---|
-| Not interested (Job Detail) | Added. `Job.dismissedAt` records when a job was dismissed, and dismissed jobs are left out of every resume tab |
-| "Resume used" column and resume filter (Applications) | Dropped. Applying happens on the employer's site, so there is nothing to record and no schema change |
+| Screen feature                                        | Outcome                                                                                                        |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Not interested (Job Detail)                           | Added. `Job.dismissedAt` records when a job was dismissed, and dismissed jobs are left out of every resume tab |
+| "Resume used" column and resume filter (Applications) | Dropped. Applying happens on the employer's site, so there is nothing to record and no schema change           |
 
 ### 11B. Schema features with no screen
 
 Tracked as open questions 5 to 10 in [`screen-spec.md`](./screen-spec.md), to become
 backlog tickets. Login is covered.
 
-| Feature | In the schema as | What the screens lack |
-|---|---|---|
-| Radius filter | `SearchArea` | A way to pick a home base on the Jobs page, and somewhere to add or edit areas |
-| Hidden jobs | `Job.passedHardFilters`, `Job.filterReasons`, `Job.dismissedAt` | A "show hidden" toggle (the only way to undo a Not interested), and the reason shown on the job |
-| Fetch status | `IngestRun` | A "last fetched" line or per-source status near Search more |
-| Jobs without a description | `Job.description` is null | A way to paste the description into the Job Detail modal |
-| Unread state | `Job.viewedAt` | Styling only: unopened jobs shown bold |
-| Login | `User`, `Session`, `Account` | Covered: the screen spec now has a `/login` page (a ready-made shadcn/ui or Better Auth UI form) and Sign out in the nav |
-| Search terms | `Resume.searchTerms` | The Upload Resume modal has no field for them |
+| Feature                    | In the schema as                                                | What the screens lack                                                                                                    |
+| -------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Radius filter              | `SearchArea`                                                    | A way to pick a home base on the Jobs page, and somewhere to add or edit areas                                           |
+| Hidden jobs                | `Job.passedHardFilters`, `Job.filterReasons`, `Job.dismissedAt` | A "show hidden" toggle (the only way to undo a Not interested), and the reason shown on the job                          |
+| Fetch status               | `IngestRun`                                                     | A "last fetched" line or per-source status near Search more                                                              |
+| Jobs without a description | `Job.description` is null                                       | A way to paste the description into the Job Detail modal                                                                 |
+| Unread state               | `Job.viewedAt`                                                  | Styling only: unopened jobs shown bold                                                                                   |
+| Login                      | `User`, `Session`, `Account`                                    | Covered: the screen spec now has a `/login` page (a ready-made shadcn/ui or Better Auth UI form) and Sign out in the nav |
+| Search terms               | `Resume.searchTerms`                                            | The Upload Resume modal has no field for them                                                                            |
 
 Suggested way to cover most of these: a filter bar under the resume tabs on the
 Jobs page (home base, remote only, show hidden) with a "last fetched" line
@@ -526,56 +526,56 @@ beside Search more, and a small settings page for search areas.
 
 ### 11C. The screen spec's open questions
 
-| Question | Answer |
-|---|---|
-| 1. One applications list, or one per resume? | One list. An application belongs to a job, not to a resume, and no resume is recorded on it |
-| 2. Import: permanent or one-time? | One-time. Move it off the page header to a settings page or first-run step, and leave Export as the only action |
+| Question                                              | Answer                                                                                                                         |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 1. One applications list, or one per resume?          | One list. An application belongs to a job, not to a resume, and no resume is recorded on it                                    |
+| 2. Import: permanent or one-time?                     | One-time. Move it off the page header to a settings page or first-run step, and leave Export as the only action                |
 | 3. Does a job matching two resumes show in both tabs? | Yes, as the same `Job` row, because tabs are views of one pool. Marking it applied in one tab shows it as applied in the other |
-| 4. Is there a "not interested" action? | Yes. It sets `Job.dismissedAt`, and the job disappears from every tab |
+| 4. Is there a "not interested" action?                | Yes. It sets `Job.dismissedAt`, and the job disappears from every tab                                                          |
 
 ### 11D. Other decisions (all decided)
 
-| Decision | Outcome | Notes |
-|---|---|---|
-| What Search more fetches | Decided: every source, for every resume | Larajobs and Gmail are not tied to a resume, and one pool is simpler than partial fetches |
-| When the evaluation runs | Decided: automatically when a job is opened, after a short pause | The pause stops flipping through jobs with the arrow keys from starting one evaluation per job. A saved evaluation is shown instead of re-running |
-| What an evaluation is tied to | Decided: the job | One framework report (sections A to H) per job, not one per resume tab, which would triple the cost. `Evaluation.resumeId` can record which tab was open |
-| Jobs with no description | Decided: left unranked, listed under the ranked jobs as "needs description" | The app tries to find the description through JSearch by title and company, and the description can be pasted in |
-| Embeddings provider and model | Decided: OpenAI `text-embedding-3-small` through the AI SDK (`@ai-sdk/openai`). Its vectors have 1,536 numbers, matching the schema | Every embedding must come from this one model; switching later means re-embedding every job and resume |
-| Geocoding | Decided: Google's Geocoding API, for jobs that arrive with a city name but no coordinates (mostly alert emails) | Needs a billing account on the Google Cloud project, even within the 10,000 free requests a month. See section 6 for Google's limit on storing the results |
-| Hard filter rules | Decided: salary only. A job is hidden when the top of its range, annualized, is under the active framework's `salaryFloor` | Older technology is flagged by the evaluation, not hidden, as the framework asks |
-| Export formats | Decided: CSV only in V1 | A CSV can be imported into Google Sheets (File, Import). Exporting straight to Google Sheets is in the backlog for V2 |
-| Search terms per resume | Decided: Haiku suggests them from the resume at upload | They can be edited before saving |
-| Gmail alerts with more than one user | Decided: each user links their own Google account, and the tokens are stored encrypted in Better Auth's `Account` table (section 4). No new table | — |
-| JSearch with more than one user | Decided: one shared API key. Every user's searches count against the one plan | Watch `IngestRun` counts per user |
-| "Possibly closed" threshold | Decided: 14 days | A job no source has returned in 14 days (by `Job.lastFoundAt`) is labeled "possibly closed" |
-| How the Job Detail modal is built | Decided: intercepting routes, plus a full `/jobs/[id]` page that reuses the modal's content | Each job gets an address: the back button closes the modal, the Applications table can link to a job, and a refresh keeps you on it |
-| Scheduler | Decided: daily at midnight local time, off by default through `SCHEDULER_ENABLED` in `.env`. Which sources it runs is the `SCHEDULER_SOURCES` setting, set to the free sources (Larajobs and Gmail) for now | If the app is not running at midnight, that day is skipped. If Halibut is ever hosted on an always-on machine, adding `jsearch` to `SCHEDULER_SOURCES` makes the daily run fetch every source, with no code change |
+| Decision                             | Outcome                                                                                                                                                                                                     | Notes                                                                                                                                                                                                              |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| What Search more fetches             | Decided: every source, for every resume                                                                                                                                                                     | Larajobs and Gmail are not tied to a resume, and one pool is simpler than partial fetches                                                                                                                          |
+| When the evaluation runs             | Decided: automatically when a job is opened, after a short pause                                                                                                                                            | The pause stops flipping through jobs with the arrow keys from starting one evaluation per job. A saved evaluation is shown instead of re-running                                                                  |
+| What an evaluation is tied to        | Decided: the job                                                                                                                                                                                            | One framework report (sections A to H) per job, not one per resume tab, which would triple the cost. `Evaluation.resumeId` can record which tab was open                                                           |
+| Jobs with no description             | Decided: left unranked, listed under the ranked jobs as "needs description"                                                                                                                                 | The app tries to find the description through JSearch by title and company, and the description can be pasted in                                                                                                   |
+| Embeddings provider and model        | Decided: OpenAI `text-embedding-3-small` through the AI SDK (`@ai-sdk/openai`). Its vectors have 1,536 numbers, matching the schema                                                                         | Every embedding must come from this one model; switching later means re-embedding every job and resume                                                                                                             |
+| Geocoding                            | Decided: Google's Geocoding API, for jobs that arrive with a city name but no coordinates (mostly alert emails)                                                                                             | Needs a billing account on the Google Cloud project, even within the 10,000 free requests a month. See section 6 for Google's limit on storing the results                                                         |
+| Hard filter rules                    | Decided: salary only. A job is hidden when the top of its range, annualized, is under the active framework's `salaryFloor`                                                                                  | Older technology is flagged by the evaluation, not hidden, as the framework asks                                                                                                                                   |
+| Export formats                       | Decided: CSV only in V1                                                                                                                                                                                     | A CSV can be imported into Google Sheets (File, Import). Exporting straight to Google Sheets is in the backlog for V2                                                                                              |
+| Search terms per resume              | Decided: Haiku suggests them from the resume at upload                                                                                                                                                      | They can be edited before saving                                                                                                                                                                                   |
+| Gmail alerts with more than one user | Decided: each user links their own Google account, and the tokens are stored encrypted in Better Auth's `Account` table (section 4). No new table                                                           | —                                                                                                                                                                                                                  |
+| JSearch with more than one user      | Decided: one shared API key. Every user's searches count against the one plan                                                                                                                               | Watch `IngestRun` counts per user                                                                                                                                                                                  |
+| "Possibly closed" threshold          | Decided: 14 days                                                                                                                                                                                            | A job no source has returned in 14 days (by `Job.lastFoundAt`) is labeled "possibly closed"                                                                                                                        |
+| How the Job Detail modal is built    | Decided: intercepting routes, plus a full `/jobs/[id]` page that reuses the modal's content                                                                                                                 | Each job gets an address: the back button closes the modal, the Applications table can link to a job, and a refresh keeps you on it                                                                                |
+| Scheduler                            | Decided: daily at midnight local time, off by default through `SCHEDULER_ENABLED` in `.env`. Which sources it runs is the `SCHEDULER_SOURCES` setting, set to the free sources (Larajobs and Gmail) for now | If the app is not running at midnight, that day is skipped. If Halibut is ever hosted on an always-on machine, adding `jsearch` to `SCHEDULER_SOURCES` makes the daily run fetch every source, with no code change |
 
 ## 12. Application tracking and the sheet
 
 `Application` mirrors the "Applications 2026" tab. Only that tab of the
 workbook is in scope.
 
-| Sheet column | Stored in |
-|---|---|
-| Position | `Job.title` |
-| Company | `Company.name` |
-| Industry | `Company.industry` |
-| Role | `Job.roleCategory` |
-| Location | `Job.locationRaw` |
-| Date Posted | `Job.postedAt` |
-| Salary Range | `Job.salaryRaw` |
-| Date Applied | `Application.appliedAt` |
-| Connections? | `Application.hasConnection` |
-| Cover Letter | `Application.coverLetter` |
-| Résumé upload? | `Application.resumeUpload` |
-| Résumé Form? | `Application.resumeForm` |
-| Notes | `Application.notes` |
-| Status | `Application.status` |
-| Latest word | `Application.latestWordAt` |
-| contact 1 | `Application.contactName` |
-| SHADE | `Application.shade` |
+| Sheet column   | Stored in                   |
+| -------------- | --------------------------- |
+| Position       | `Job.title`                 |
+| Company        | `Company.name`              |
+| Industry       | `Company.industry`          |
+| Role           | `Job.roleCategory`          |
+| Location       | `Job.locationRaw`           |
+| Date Posted    | `Job.postedAt`              |
+| Salary Range   | `Job.salaryRaw`             |
+| Date Applied   | `Application.appliedAt`     |
+| Connections?   | `Application.hasConnection` |
+| Cover Letter   | `Application.coverLetter`   |
+| Résumé upload? | `Application.resumeUpload`  |
+| Résumé Form?   | `Application.resumeForm`    |
+| Notes          | `Application.notes`         |
+| Status         | `Application.status`        |
+| Latest word    | `Application.latestWordAt`  |
+| contact 1      | `Application.contactName`   |
+| SHADE          | `Application.shade`         |
 
 Statuses match the sheet's dropdown word for word: draft, sent, phone call,
 interview, rejection, offer, pending. In V1 the status is changed by hand.
@@ -606,34 +606,34 @@ Describes the repo after the pull request that adds this document (branch
 
 ### In the repo
 
-| Area | What is there |
-|---|---|
-| Next.js | 16.4.6, App Router in `src/app/`, with feature code in `src/features/<feature>` and shared server code in `src/server`. `next.config.ts` turns on `cacheComponents` and `partialPrefetching`. `src/app/layout.tsx` and `src/app/page.tsx` are still the create-next-app defaults, including the "Create Next App" title |
-| React and TypeScript | React 19.3.0, TypeScript 5, strict mode. The import alias `@/*` points at `src/`, and `@generated/*` points at `generated/` |
-| Styling | Tailwind CSS 4.3.3, loaded through the `@tailwindcss/turbopack` loader in `next.config.ts` rather than a PostCSS config |
-| Linting | ESLint 9 with `eslint-config-next` |
-| Prisma | `prisma`, `@prisma/client` and `@prisma/adapter-pg` at 7.10.1, plus `pg` 8.23 and `dotenv` |
-| Prisma client | `src/server/db/prisma.ts` creates one client with the `PrismaPg` adapter and reuses it across hot reloads. It imports `server-only`, so client code can't import it. This is the client every server file should import |
-| Prisma config | `prisma.config.ts` reads `DATABASE_URL`, sets the migrations folder, and runs `prisma/seed.ts` with `tsx` for `prisma db seed` |
-| Schema | `prisma/schema.prisma` has the ten Halibut models and Better Auth's four. The client is generated to `generated/prisma` at the repo root, which is ignored by git, and imported as `@generated/prisma/client` |
-| Validation and evaluation | `src/lib/enums.ts` and `src/features/evaluation/schemas.ts`, using `zod` |
-| Seed | `prisma/seed.ts`: three search areas and the first framework version, for the account in `SEED_USER_EMAIL` |
-| Framework | `prompts/job-evaluation-framework.example.md` is committed. Your own `prompts/job-evaluation-framework.md` is ignored by git |
-| Local database | `docker-compose.yml` (Postgres 16 with pgvector) and `.env.example` |
-| Docs | This document, the schema diagram, `docs/open-questions.md` and `docs/screen-spec.md` |
-| Agent instructions | `AGENTS.md` (Next.js) and Prisma's agent skills in `.agents/`, `.claude/` and `.windsurf/` |
+| Area                      | What is there                                                                                                                                                                                                                                                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Next.js                   | 16.4.6, App Router in `src/app/`, with feature code in `src/features/<feature>` and shared server code in `src/server`. `next.config.ts` turns on `cacheComponents` and `partialPrefetching`. `src/app/layout.tsx` and `src/app/page.tsx` are still the create-next-app defaults, including the "Create Next App" title |
+| React and TypeScript      | React 19.3.0, TypeScript 5, strict mode. The import alias `@/*` points at `src/`, and `@generated/*` points at `generated/`                                                                                                                                                                                             |
+| Styling                   | Tailwind CSS 4.3.3, loaded through the `@tailwindcss/turbopack` loader in `next.config.ts` rather than a PostCSS config                                                                                                                                                                                                 |
+| Linting                   | ESLint 9 with `eslint-config-next`                                                                                                                                                                                                                                                                                      |
+| Prisma                    | `prisma`, `@prisma/client` and `@prisma/adapter-pg` at 7.10.1, plus `pg` 8.23 and `dotenv`                                                                                                                                                                                                                              |
+| Prisma client             | `src/server/db/prisma.ts` creates one client with the `PrismaPg` adapter and reuses it across hot reloads. It imports `server-only`, so client code can't import it. This is the client every server file should import                                                                                                 |
+| Prisma config             | `prisma.config.ts` reads `DATABASE_URL`, sets the migrations folder, and runs `prisma/seed.ts` with `tsx` for `prisma db seed`                                                                                                                                                                                          |
+| Schema                    | `prisma/schema.prisma` has the ten Halibut models and Better Auth's four. The client is generated to `generated/prisma` at the repo root, which is ignored by git, and imported as `@generated/prisma/client`                                                                                                           |
+| Validation and evaluation | `src/lib/enums.ts` and `src/features/evaluation/schemas.ts`, using `zod`                                                                                                                                                                                                                                                |
+| Seed                      | `prisma/seed.ts`: three search areas and the first framework version, for the account in `SEED_USER_EMAIL`                                                                                                                                                                                                              |
+| Framework                 | `prompts/job-evaluation-framework.example.md` is committed. Your own `prompts/job-evaluation-framework.md` is ignored by git                                                                                                                                                                                            |
+| Local database            | `docker-compose.yml` (Postgres 16 with pgvector) and `.env.example`                                                                                                                                                                                                                                                     |
+| Docs                      | This document, the schema diagram, `docs/open-questions.md` and `docs/screen-spec.md`                                                                                                                                                                                                                                   |
+| Agent instructions        | `AGENTS.md` (Next.js) and Prisma's agent skills in `.agents/`, `.claude/` and `.windsurf/`                                                                                                                                                                                                                              |
 
 ### Not in the repo yet
 
-| Item | Needed for |
-|---|---|
-| Migrations | The database |
-| `better-auth`, `src/server/auth.ts`, an account-creation command, a login page, `src/proxy.ts` and `verifySession()` | Users and login (section 4) |
-| The Vercel AI SDK (`ai`), its Anthropic provider, and `@ai-sdk/openai` for embeddings | The evaluation, email parsing and matching |
-| shadcn/ui | The UI components. The repo loads Tailwind through the Turbopack loader, not PostCSS, so check that `shadcn init` works with that setup first |
-| `concurrently` and a scheduler library | Running the worker next to the app |
-| A Gmail API client, an RSS parser, and PDF and DOCX text extraction | Gmail alerts, Larajobs, resume uploads |
-| A Google Cloud project with the Gmail and Geocoding APIs turned on, and a billing account for Geocoding | Gmail alerts and distances |
+| Item                                                                                                                 | Needed for                                                                                                                                    |
+| -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Migrations                                                                                                           | The database                                                                                                                                  |
+| `better-auth`, `src/server/auth.ts`, an account-creation command, a login page, `src/proxy.ts` and `verifySession()` | Users and login (section 4)                                                                                                                   |
+| The Vercel AI SDK (`ai`), its Anthropic provider, and `@ai-sdk/openai` for embeddings                                | The evaluation, email parsing and matching                                                                                                    |
+| shadcn/ui                                                                                                            | The UI components. The repo loads Tailwind through the Turbopack loader, not PostCSS, so check that `shadcn init` works with that setup first |
+| `concurrently` and a scheduler library                                                                               | Running the worker next to the app                                                                                                            |
+| A Gmail API client, an RSS parser, and PDF and DOCX text extraction                                                  | Gmail alerts, Larajobs, resume uploads                                                                                                        |
+| A Google Cloud project with the Gmail and Geocoding APIs turned on, and a billing account for Geocoding              | Gmail alerts and distances                                                                                                                    |
 
 ### The repo is public
 
@@ -684,17 +684,17 @@ the API keys.
 
 ## 14. What has been checked
 
-| Check | Result |
-|---|---|
-| The repo at commit `a7a008f`: installed packages, config files and folder layout | Read; section 13 describes it |
-| This branch in the repo: `prisma validate` and `prisma generate`, `tsc --noEmit` on the whole project (after `next typegen`), and ESLint on the new files | Pass |
-| `prisma validate` and `prisma generate` on Prisma 7.10.1, with the repo's generator settings | Pass |
-| `enums.ts`, `schemas.ts` (evaluation) and `seed.ts` compile under TypeScript strict mode | Pass |
-| Seed script against Postgres 16, through `prisma db seed` | Three search areas, no duplicates on re-runs. The framework is read from the example file, then from the private file once it exists; a new version is saved only when the file changes. Refuses to run when the account in `SEED_USER_EMAIL` does not exist |
-| Better Auth 1.7.25 against Postgres 16 | Sign-up is refused while turned off; an account created through the internal adapter can sign in; a wrong password is rejected |
-| Two users in the same database | Both can hold the same company, fingerprint, sighting and search area label; each sees only their own jobs; deleting one user removes all of their data and leaves the other's untouched |
-| Generated client against Postgres 16 with pgvector 0.6.0: UUIDv7 IDs, text arrays, JSON, date columns, unique fingerprint, unique source plus external ID, cascade delete, the default-resume transaction | Pass |
-| The two SQL queries in sections 7 and 9 | Pass, with expected rows and distances |
+| Check                                                                                                                                                                                                     | Result                                                                                                                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| The repo at commit `a7a008f`: installed packages, config files and folder layout                                                                                                                          | Read; section 13 describes it                                                                                                                                                                                                                                |
+| This branch in the repo: `prisma validate` and `prisma generate`, `tsc --noEmit` on the whole project (after `next typegen`), and ESLint on the new files                                                 | Pass                                                                                                                                                                                                                                                         |
+| `prisma validate` and `prisma generate` on Prisma 7.10.1, with the repo's generator settings                                                                                                              | Pass                                                                                                                                                                                                                                                         |
+| `enums.ts`, `schemas.ts` (evaluation) and `seed.ts` compile under TypeScript strict mode                                                                                                                  | Pass                                                                                                                                                                                                                                                         |
+| Seed script against Postgres 16, through `prisma db seed`                                                                                                                                                 | Three search areas, no duplicates on re-runs. The framework is read from the example file, then from the private file once it exists; a new version is saved only when the file changes. Refuses to run when the account in `SEED_USER_EMAIL` does not exist |
+| Better Auth 1.7.25 against Postgres 16                                                                                                                                                                    | Sign-up is refused while turned off; an account created through the internal adapter can sign in; a wrong password is rejected                                                                                                                               |
+| Two users in the same database                                                                                                                                                                            | Both can hold the same company, fingerprint, sighting and search area label; each sees only their own jobs; deleting one user removes all of their data and leaves the other's untouched                                                                     |
+| Generated client against Postgres 16 with pgvector 0.6.0: UUIDv7 IDs, text arrays, JSON, date columns, unique fingerprint, unique source plus external ID, cascade delete, the default-resume transaction | Pass                                                                                                                                                                                                                                                         |
+| The two SQL queries in sections 7 and 9                                                                                                                                                                   | Pass, with expected rows and distances                                                                                                                                                                                                                       |
 
 **Not checked:**
 
@@ -709,21 +709,21 @@ the API keys.
 
 ## 15. Risks and known limits
 
-| Risk | Effect | Handling |
-|---|---|---|
-| Alert emails have no description | Many jobs from the main boards start as stubs that cannot be ranked or evaluated | Look the job up in JSearch by title and company; allow pasting the description. This is the least proven part of the design, so build the email reader after the JSearch path works |
-| Fingerprint misses | "Sr. Software Engineer" and "Senior Software Engineer" at one company become two jobs | Normalize common abbreviations; near-identical embeddings could flag likely duplicates later |
-| Two companies with the same name | Merged into one `Company` row | Accepted for V1; see `open-questions.md` |
-| JSearch coverage | Only what Google for Jobs indexed | Track which sources find new jobs through `IngestRun` counts |
-| Similarity is not suitability | A poor job can rank high | The framework evaluation is the judge |
-| Gmail access | Read-only permission covers the whole mailbox | Read only the alert label, in code |
-| Google's seven-day token limit | In Testing status, Gmail stops working a week after each user connects | A "Reconnect Gmail" prompt; or publish the Google project, after checking what verification it needs |
-| A query without a `userId` filter | One user sees another's data | All data access goes through helpers that take the user from `verifySession()`; test with two users |
-| Better Auth's internal adapter | The account-creation command uses an internal API that can change between versions | Re-test account creation after upgrading Better Auth |
-| LLM cost | One Opus call per job evaluated | Save every evaluation; evaluate on open, not in bulk |
-| Prisma 7 and vectors | Embedding reads and writes are raw SQL | Keep them in one small module |
-| Nothing fetches on startup or while the app is closed | The list can be stale when the app is opened | Show when the last fetch ran, next to Search more |
-| Resume tabs | Three similar resumes will rank many of the same jobs near the top | Expected; they differ most on Python-heavy or Next.js-heavy postings |
+| Risk                                                  | Effect                                                                                | Handling                                                                                                                                                                            |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alert emails have no description                      | Many jobs from the main boards start as stubs that cannot be ranked or evaluated      | Look the job up in JSearch by title and company; allow pasting the description. This is the least proven part of the design, so build the email reader after the JSearch path works |
+| Fingerprint misses                                    | "Sr. Software Engineer" and "Senior Software Engineer" at one company become two jobs | Normalize common abbreviations; near-identical embeddings could flag likely duplicates later                                                                                        |
+| Two companies with the same name                      | Merged into one `Company` row                                                         | Accepted for V1; see `open-questions.md`                                                                                                                                            |
+| JSearch coverage                                      | Only what Google for Jobs indexed                                                     | Track which sources find new jobs through `IngestRun` counts                                                                                                                        |
+| Similarity is not suitability                         | A poor job can rank high                                                              | The framework evaluation is the judge                                                                                                                                               |
+| Gmail access                                          | Read-only permission covers the whole mailbox                                         | Read only the alert label, in code                                                                                                                                                  |
+| Google's seven-day token limit                        | In Testing status, Gmail stops working a week after each user connects                | A "Reconnect Gmail" prompt; or publish the Google project, after checking what verification it needs                                                                                |
+| A query without a `userId` filter                     | One user sees another's data                                                          | All data access goes through helpers that take the user from `verifySession()`; test with two users                                                                                 |
+| Better Auth's internal adapter                        | The account-creation command uses an internal API that can change between versions    | Re-test account creation after upgrading Better Auth                                                                                                                                |
+| LLM cost                                              | One Opus call per job evaluated                                                       | Save every evaluation; evaluate on open, not in bulk                                                                                                                                |
+| Prisma 7 and vectors                                  | Embedding reads and writes are raw SQL                                                | Keep them in one small module                                                                                                                                                       |
+| Nothing fetches on startup or while the app is closed | The list can be stale when the app is opened                                          | Show when the last fetch ran, next to Search more                                                                                                                                   |
+| Resume tabs                                           | Three similar resumes will rank many of the same jobs near the top                    | Expected; they differ most on Python-heavy or Next.js-heavy postings                                                                                                                |
 
 ## 16. Build order
 
@@ -758,7 +758,7 @@ it.
 9. **Gmail alerts.** Linking Google per user with encrypted tokens, the
    label reader, `ProcessedEmail`, and filling in stub jobs.
 10. **Filters and scheduling.** Geocoding, search areas and radius, hard
-   filters, the "show hidden" toggle, and the worker with the scheduler.
+    filters, the "show hidden" toggle, and the worker with the scheduler.
 
 ## 17. Backlog
 
