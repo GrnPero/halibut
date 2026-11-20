@@ -6,7 +6,7 @@ These are loose screen ideas, not final designs. See **Open questions** and **De
 ---
 
 ## Global layout
-Shared layout in `app/layout.tsx`, used by every page:
+Shared layout in `src/app/layout.tsx`, used by every page:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐

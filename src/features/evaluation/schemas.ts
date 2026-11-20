@@ -9,7 +9,7 @@
 
 import { z } from "zod";
 
-import { EmploymentType, SalaryPeriod, Verdict, WorkMode } from "./enums";
+import { EmploymentType, SalaryPeriod, Verdict, WorkMode } from "@/lib/enums";
 
 // "Separate facts, reasonable inferences, and unknowns."
 const basis = z.enum(["confirmed", "inferred", "unknown"]);

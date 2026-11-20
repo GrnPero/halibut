@@ -1,4 +1,6 @@
-import { PrismaClient } from "@/generated/prisma/client";
+import "server-only";
+
+import { PrismaClient } from "@generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 // Reuse one client across hot reloads in development so we don't open

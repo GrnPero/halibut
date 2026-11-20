@@ -23,15 +23,18 @@ Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tailwind CSS 4,
 ## Layout
 
 ```
-app/            Next.js routes (still the create-next-app defaults)
-lib/            prisma.ts (shared client), enums.ts, evaluation.ts (Zod)
+src/
+  app/                    Next.js routes (still the create-next-app defaults)
+  features/evaluation/    schemas.ts: the framework evaluation (Zod)
+  server/db/              prisma.ts: the shared Prisma client (server-only)
+  lib/                    enums.ts: allowed values for every "kind" column
 prisma/         schema.prisma and seed.ts; migrations land here
 prompts/        job-evaluation-framework.example.md (your real one is git-ignored)
 docs/           design doc, screen spec, open questions, schema diagram
 generated/      the generated Prisma client (git-ignored)
 ```
 
-The code is moving to a feature-based `src/` layout (`src/app`, `src/features/<feature>`, `src/server`), described in the epic's setup phase. This section will change with that move.
+Each feature gets its own folder in `src/features/<feature>`. `src/app` holds only the routes, and `src/server` holds shared server code. Import from `src/` with `@/...` and the generated Prisma client with `@generated/prisma/client`.
 
 ## Prerequisites
 
@@ -47,6 +50,8 @@ cp .env.example .env          # then fill it in; never commit .env
 docker compose up -d          # Postgres 16 + pgvector on localhost:5432
 ```
 
+If another Postgres already uses port 5432 (for example one installed with `apt`), stop it while you work on Halibut, for example `sudo systemctl stop postgresql@14-main` (use your version). Otherwise Prisma connects to that server instead and fails with errors like `type "vector" does not exist`. To check which server you're on, run `docker ps` (it should show `halibut-db` on `0.0.0.0:5432`), and check the `at "localhost:..."` line that Prisma prints.
+
 Copy your evaluation framework to `prompts/job-evaluation-framework.md`. It starts with the three salary numbers between `---` lines, then the framework text (see the example file). It's git-ignored; without it the seed uses the committed example.
 
 First migration (until it's committed to the repo):
@@ -59,13 +64,23 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
-Create your account, set `SEED_USER_EMAIL` in `.env` to its email, then seed your search areas and first framework version:
+Create your account, set `SEED_USER_EMAIL` in `.env` to its email, then seed your search areas and first framework version. The account-creation command (`npm run user:create`) comes with login. Until then, insert the account by hand, using the email from `.env`:
 
 ```sh
-# account-creation command: not written yet (npm run user:create, planned)
+source <(grep '^SEED_USER_EMAIL=' .env)
+echo "INSERT INTO \"user\" (name, email, \"updatedAt\") VALUES ('Your Name', '$SEED_USER_EMAIL', now());" | npx prisma db execute --stdin
 npx prisma db seed
 npm run dev                   # http://localhost:3000
 ```
+
+### See the data
+
+```sh
+npx prisma studio                                      # browse and edit tables in the browser
+docker exec -it halibut-db psql -U halibut -d halibut  # SQL shell inside the container
+```
+
+In psql, `\dt` lists the tables, `\dx` lists the extensions (`vector` should be there), and `\q` quits. Table names with capital letters need double quotes, for example `SELECT label FROM "SearchArea";`.
 
 `npx tsc --noEmit` needs Next.js's route types first: `next dev` and `next build` create them, or run `npx next typegen`.
 
