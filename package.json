@@ -16,7 +16,7 @@
     "*": "prettier --write --ignore-unknown"
   },
   "engines": {
-    "node": ">=22"
+    "node": "^22.22.1 || >=24.0"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
