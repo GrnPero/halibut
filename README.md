@@ -38,7 +38,7 @@ Each feature gets its own folder in `src/features/<feature>`. `src/app` holds on
 
 ## Prerequisites
 
-- Node 22.22.1 or later 22.x, or Node 24+ (`.nvmrc` pins 22)
+- Node 22.22.2 or later 22.x, Node 24.15 or later 24.x, or Node 26+ (`.nvmrc` pins 22)
 - Docker (for Postgres with pgvector)
 - API keys, as features land: Anthropic (evaluation), OpenAI (embeddings), JSearch (paid job search), and a Google Cloud project for Gmail and geocoding. `.env.example` lists them.
 
