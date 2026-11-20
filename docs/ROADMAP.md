@@ -17,7 +17,7 @@ Before any feature work.
 - [x] sc-163: GitHub app + secret (Rodrigo, manual)
 - [x] sc-164: move to `src/` (PR #2)
 - [x] sc-165: `AGENTS.md` rules + this roadmap (PR #3)
-- [ ] sc-166: Claude review workflow + PR template, after sc-165 and sc-163
+- [x] sc-166: Claude review workflow + PR template (PR #4)
 - [ ] sc-167: CI (lint, typecheck, build)
 - [ ] sc-168: Prettier + Husky + format check, after sc-167
 - [ ] sc-169: Vitest in CI, after sc-168

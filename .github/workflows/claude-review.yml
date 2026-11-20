@@ -1,0 +1,46 @@
+name: Claude review
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+# A new push cancels the review still running for the same PR
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+jobs:
+  review:
+    # Skip drafts, and skip fork PRs (public repo: forks get no secrets)
+    if: github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.ANTHROPIC_OAUTH_KEY }}
+          prompt: |
+            Review this PR for correctness bugs. Follow AGENTS.md. For each finding,
+            give the problem, the failure scenario, and a fix snippet. Post the
+            findings as inline comments.
+
+            Start each finding's title with its severity circle (🔴, 🟡, 🟢 or 🟣),
+            as defined in AGENTS.md's "Code review" section, and follow that
+            section's limits on how many findings to post.
+
+            Before posting, list the review comments already on this PR, resolved
+            or not:
+              gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments --paginate
+            Skip any finding an existing comment already covers: same file, same
+            underlying issue, even if the wording or line differs. Only post new
+            findings.
+
+            When you're done, post one summary comment with gh pr comment:
+            "No new findings." if you posted nothing, otherwise
+            "N new findings posted inline (🔴 a · 🟡 b · 🟢 c · 🟣 d)." with the
+            counts filled in.
+          claude_args: >-
+            --model opus
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments:*)"
