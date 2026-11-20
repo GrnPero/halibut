@@ -729,7 +729,7 @@ the API keys.
 
 Each step leaves a working app. The numbers match the phases of the Shortcut
 epic [Halibut - MVP](https://app.shortcut.com/personal-projects-15/epic/161),
-which lists one small story per pull request. `docs/ROADMAP.md` will mirror
+which lists one small story per pull request. `docs/ROADMAP.md` mirrors
 it.
 
 0. **Design.** This document, the schema, the seed and the libraries.
