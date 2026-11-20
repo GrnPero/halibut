@@ -9,7 +9,11 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown"
   },
   "engines": {
     "node": ">=22"
@@ -32,6 +36,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.1",
     "prettier": "3.10.1",
     "prisma": "^7.10.1",
     "tailwindcss": "4.3.3",
