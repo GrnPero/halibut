@@ -18,7 +18,7 @@ Before any feature work.
 - [x] sc-164: move to `src/` (PR #2)
 - [x] sc-165: `AGENTS.md` rules + this roadmap (PR #3)
 - [x] sc-166: Claude review workflow + PR template (PR #4)
-- [ ] sc-167: CI (lint, typecheck, build)
+- [x] sc-167: CI (lint, typecheck, build) (PR #5)
 - [ ] sc-168: Prettier + Husky + format check, after sc-167
 - [ ] sc-169: Vitest in CI, after sc-168
 

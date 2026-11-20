@@ -42,7 +42,7 @@ npx prisma migrate dev        # no migration is committed yet (sc-170); follow t
 npx prisma db seed
 npm run dev                   # http://localhost:3000
 npm run build && npm run lint
-npx next typegen && npx tsc --noEmit
+npm run typecheck             # next typegen && tsc --noEmit
 npm test                      # Vitest (sc-169)
 npm run format                # Prettier; format:check only lists unformatted files (sc-168)
 ```
