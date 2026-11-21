@@ -392,8 +392,9 @@ local database and that ignored file, keep a backup (for example `pg_dump`).
 
 In `prisma/schema.prisma`, each of these columns ends with a
 `// <Enum> in enums.ts` comment, and any `@default` must be one of that enum's
-values. `src/lib/enums.test.ts` checks both, so keep the comment when you add or
-rename a column.
+values. `src/lib/enums.test.ts` checks both and keeps its own copy of this
+table, so a new enum column is added in three places: the schema, this table and
+the test.
 
 `JobSighting.publisher` is deliberately free text, because it holds whatever
 name the source reports.

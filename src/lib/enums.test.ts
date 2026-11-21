@@ -75,8 +75,24 @@ describe("prisma/schema.prisma agrees with enums.ts", () => {
       c.defaultValue !== null,
   );
 
-  test("has enum columns to check, so the tests below are not empty", () => {
-    expect(enumColumns.length).toBeGreaterThan(0);
+  test("marks exactly the enum columns listed in docs/design.md", () => {
+    // Written out on purpose, like the ApplicationStatus list: this mirrors the
+    // "Text kind columns" table in docs/design.md, so a new enum column must be
+    // added in the schema, the table and here. It also keeps the tests below
+    // from passing with nothing to check.
+    expect(
+      Object.fromEntries(enumColumns.map((c) => [c.column, c.enumName])),
+    ).toEqual({
+      "Job.roleCategory": "RoleCategory",
+      "Job.workMode": "WorkMode",
+      "Job.salaryPeriod": "SalaryPeriod",
+      "Job.employmentType": "EmploymentType",
+      "JobSighting.source": "SourceKind",
+      "Evaluation.verdict": "Verdict",
+      "Application.status": "ApplicationStatus",
+      "IngestRun.source": "SourceKind",
+      "IngestRun.status": "RunStatus",
+    });
   });
 
   test("every string default is on a column that names its enum", () => {
