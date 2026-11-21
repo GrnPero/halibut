@@ -27,12 +27,15 @@ src/
     *.test.ts               unit tests, next to the file they test
   server/                   shared infrastructure only: db, llm, auth, session, config
   lib/                      shared, framework-free code (enums.ts, messages.ts)
+tests/
+  setup.ts                  runs before every test file (jest-dom matchers, cleanup)
+  helpers/                  shared fakes and fixtures       ≈ factories
 prisma/                     schema.prisma, seed.ts, migrations
 prompts/                    job-evaluation-framework.example.md (the real one is git-ignored)
 generated/                  the generated Prisma client (git-ignored)
 ```
 
-Import from `src/` with `@/...` and the generated Prisma client with `@generated/prisma/client`. Laravel mapping: `src/app/` handlers are thin controllers, and a feature folder is a domain folder.
+Import from `src/` with `@/...`, test helpers with `@tests/...`, and the generated Prisma client with `@generated/prisma/client`. Laravel mapping: `src/app/` handlers are thin controllers, and a feature folder is a domain folder.
 
 ## Run and check
 
@@ -43,7 +46,7 @@ npx prisma db seed
 npm run dev                   # http://localhost:3000
 npm run build && npm run lint
 npm run typecheck             # next typegen && tsc --noEmit
-npm test                      # Vitest (sc-169)
+npm test                      # Vitest, once; npm run test:watch reruns on change
 npm run format                # Prettier; format:check only lists unformatted files
 ```
 
