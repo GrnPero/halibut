@@ -24,7 +24,7 @@ Before any feature work.
 
 ### 2. Skeleton
 
-- [ ] sc-170: first migration (pgvector)
+- [x] sc-170: first migration (pgvector) (PR #8)
 - [ ] sc-171: integration test harness, after sc-170
 - [ ] sc-172: shadcn/ui install
 - [ ] sc-173: global layout, nav, route groups, after sc-172

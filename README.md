@@ -48,36 +48,34 @@ Each feature gets its own folder in `src/features/<feature>`. `src/app` holds on
 ```sh
 npm install
 cp .env.example .env          # then fill it in; never commit .env
-docker compose up -d          # Postgres 16 + pgvector on localhost:5432
+npm run db:up                 # Postgres 16 + pgvector on localhost:5432
 ```
 
 If another Postgres already uses port 5432 (for example one installed with `apt`), stop it while you work on Halibut, for example `sudo systemctl stop postgresql@14-main` (use your version). Otherwise Prisma connects to that server instead and fails with errors like `type "vector" does not exist`. To check which server you're on, run `docker ps` (it should show `halibut-db` on `0.0.0.0:5432`), and check the `at "localhost:..."` line that Prisma prints.
 
 Copy your evaluation framework to `prompts/job-evaluation-framework.md`. It starts with the three salary numbers between `---` lines, then the framework text (see the example file). It's git-ignored; without it the seed uses the committed example.
 
-First migration (until it's committed to the repo):
+Apply the migrations and generate the Prisma client:
 
 ```sh
-npx prisma migrate dev --create-only --name init
-# add this as the first line of the generated migration.sql:
-#   CREATE EXTENSION IF NOT EXISTS vector;
-npx prisma migrate dev
-npx prisma generate
+npm run db:migrate
 ```
+
+`npm run db:reset` drops every table and re-applies the migrations. It deletes all local data, including your account, and doesn't seed, so repeat the steps below afterwards.
 
 Create your account, set `SEED_USER_EMAIL` in `.env` to its email, then seed your search areas and first framework version. The account-creation command (`npm run user:create`) comes with login. Until then, insert the account by hand, using the email from `.env`:
 
 ```sh
 source <(grep '^SEED_USER_EMAIL=' .env)
 echo "INSERT INTO \"user\" (name, email, \"updatedAt\") VALUES ('Your Name', '$SEED_USER_EMAIL', now());" | npx prisma db execute --stdin
-npx prisma db seed
+npm run db:seed
 npm run dev                   # http://localhost:3000
 ```
 
 ### See the data
 
 ```sh
-npx prisma studio                                      # browse and edit tables in the browser
+npm run db:studio                                      # browse and edit tables in the browser
 docker exec -it halibut-db psql -U halibut -d halibut  # SQL shell inside the container
 ```
 

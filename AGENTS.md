@@ -40,9 +40,11 @@ Import from `src/` with `@/...`, test helpers with `@tests/...`, and the generat
 ## Run and check
 
 ```sh
-docker compose up -d          # Postgres 16 + pgvector on localhost:5432 (container halibut-db)
-npx prisma migrate dev        # no migration is committed yet (sc-170); follow the README's first-migration steps
-npx prisma db seed
+npm run db:up                 # Postgres 16 + pgvector on localhost:5432 (container halibut-db)
+npm run db:migrate            # apply migrations, then regenerate the Prisma client
+npm run db:seed
+npm run db:reset              # drop everything and re-apply the migrations (wipes local data; doesn't seed)
+npm run db:studio             # browse the tables
 npm run dev                   # http://localhost:3000
 npm run build && npm run lint
 npm run typecheck             # next typegen && tsc --noEmit
