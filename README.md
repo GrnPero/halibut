@@ -28,6 +28,7 @@ src/
   features/evaluation/    schemas.ts: the framework evaluation (Zod)
   server/db/              prisma.ts: the shared Prisma client (server-only)
   lib/                    enums.ts: allowed values for every "kind" column
+tests/          Vitest setup and shared test fixtures (unit tests sit next to the code)
 prisma/         schema.prisma and seed.ts; migrations land here
 prompts/        job-evaluation-framework.example.md (your real one is git-ignored)
 docs/           design doc, screen spec, open questions, schema diagram
@@ -83,6 +84,8 @@ docker exec -it halibut-db psql -U halibut -d halibut  # SQL shell inside the co
 In psql, `\dt` lists the tables, `\dx` lists the extensions (`vector` should be there), and `\q` quits. Table names with capital letters need double quotes, for example `SELECT label FROM "SearchArea";`.
 
 Run `npm run typecheck` to typecheck. It runs `npx next typegen` first, because `tsc --noEmit` needs Next.js's route types.
+
+Run `npm test` to run the unit tests once (CI runs it), or `npm run test:watch` to rerun them as you edit. Tests use Vitest and sit next to the file they test as `*.test.ts`. They need no database.
 
 Prettier formats the code. `npm install` sets up a pre-commit hook that formats staged files, `npm run format` formats the whole repo, and `npm run format:check` lists unformatted files (CI runs it). To keep `git blame` from pointing at the one-time format commit, run this once per clone:
 

@@ -390,6 +390,11 @@ local database and that ignored file, keep a backup (for example `pg_dump`).
 | `Application.status`                     | `ApplicationStatus`        |
 | `IngestRun.status`                       | `RunStatus`                |
 
+In `prisma/schema.prisma`, each of these columns ends with a
+`// <Enum> in enums.ts` comment, and any `@default` must be one of that enum's
+values. `src/lib/enums.test.ts` checks both, so keep the comment when you add or
+rename a column.
+
 `JobSighting.publisher` is deliberately free text, because it holds whatever
 name the source reports.
 

@@ -1,6 +1,6 @@
 # Halibut roadmap
 
-As of 2026-11-19. Shortcut epic [161](https://app.shortcut.com/personal-projects-15/epic/161) "Halibut - MVP" is the source of truth, and its description carries the same phase list. This file is the summary and the planned order.
+As of 2026-11-20. Shortcut epic [161](https://app.shortcut.com/personal-projects-15/epic/161) "Halibut - MVP" is the source of truth, and its description carries the same phase list. This file is the summary and the planned order.
 
 ## Phases
 
@@ -20,7 +20,7 @@ Before any feature work.
 - [x] sc-166: Claude review workflow + PR template (PR #4)
 - [x] sc-167: CI (lint, typecheck, build) (PR #5)
 - [x] sc-168: Prettier + Husky + format check (PR #6)
-- [ ] sc-169: Vitest in CI, after sc-168
+- [x] sc-169: Vitest in CI (PR #7)
 
 ### 2. Skeleton
 
