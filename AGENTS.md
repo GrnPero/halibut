@@ -30,7 +30,9 @@ src/
 tests/
   setup.ts                  runs before every test file (jest-dom matchers, cleanup)
   helpers/                  shared fakes and fixtures       ≈ factories
-prisma/                     schema.prisma, seed.ts, migrations
+    db.ts                   testPrisma, createTestUser(), truncateAll()  ≈ RefreshDatabase
+  integration/              *.integration.test.ts against halibut_test (npm run test:integration)
+prisma/                     schema.prisma, seed.ts (entry), seeder.ts (the steps), migrations
 prompts/                    job-evaluation-framework.example.md (the real one is git-ignored)
 generated/                  the generated Prisma client (git-ignored)
 ```
@@ -49,6 +51,7 @@ npm run dev                   # http://localhost:3000
 npm run build && npm run lint
 npm run typecheck             # next typegen && tsc --noEmit
 npm test                      # Vitest, once; npm run test:watch reruns on change
+npm run test:integration      # integration tests against halibut_test (needs DATABASE_URL_TEST and db:up)
 npm run format                # Prettier; format:check only lists unformatted files
 ```
 
