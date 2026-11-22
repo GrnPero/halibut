@@ -13,7 +13,7 @@ import { readFileSync } from "node:fs";
 
 import type { PrismaClient } from "../generated/prisma/client";
 
-// Approximate city centers. Close enough for a 50-mile radius.
+/** The starting search areas. Approximate city centers, close enough for a 50-mile radius. */
 export const SEARCH_AREAS = [
   {
     label: "Pomona",
@@ -38,11 +38,13 @@ export const SEARCH_AREAS = [
   },
 ];
 
-// Your real framework is git-ignored. The example is committed so the app
-// still works for anyone who clones the repo.
+/** Your real framework. Git-ignored. */
 export const PRIVATE_FRAMEWORK = "prompts/job-evaluation-framework.md";
+
+/** The committed fallback, so the app works for anyone who clones the repo. */
 export const EXAMPLE_FRAMEWORK = "prompts/job-evaluation-framework.example.md";
 
+/** A parsed framework file: the text plus its salary numbers. */
 type FrameworkFile = {
   content: string;
   salaryIdealMin: number;
@@ -50,13 +52,21 @@ type FrameworkFile = {
   salaryFloor: number;
 };
 
+/** Options for {@link runSeed}. */
 export type SeedOptions = {
+  /** Email of the existing account to seed. */
   email: string;
+  /** Path to the framework Markdown file. */
   frameworkPath: string;
 };
 
-// The file starts with a block of three numbers between "---" lines, then the
-// framework text.
+/**
+ * Reads a framework file: a `---` block of three salary numbers, then the text.
+ *
+ * @param path - Path to the framework Markdown file.
+ * @returns The framework text and its salary numbers.
+ * @throws If the file can't be read, is empty, has no `---` block or is missing a number.
+ */
 export function readFrameworkFile(path: string): FrameworkFile {
   let raw: string;
 
@@ -93,6 +103,7 @@ export function readFrameworkFile(path: string): FrameworkFile {
   };
 }
 
+/** Finds the account to seed; throws if it doesn't exist. */
 async function findSeedUser(prisma: PrismaClient, email: string) {
   const user = await prisma.user.findUnique({ where: { email } });
 
@@ -104,6 +115,7 @@ async function findSeedUser(prisma: PrismaClient, email: string) {
   return user;
 }
 
+/** Creates any missing starting search areas; leaves existing ones as they are. */
 async function seedSearchAreas(prisma: PrismaClient, userId: string) {
   for (const area of SEARCH_AREAS) {
     await prisma.searchArea.upsert({
@@ -118,6 +130,7 @@ async function seedSearchAreas(prisma: PrismaClient, userId: string) {
   );
 }
 
+/** Saves a new framework version only if the file differs from the newest one. */
 async function seedFramework(
   prisma: PrismaClient,
   userId: string,
@@ -147,6 +160,13 @@ async function seedFramework(
   console.log(`Saved a new framework version from ${path}`);
 }
 
+/**
+ * Seeds the search areas and framework for one existing account. Safe to re-run.
+ *
+ * @param prisma - The Prisma client to write with.
+ * @param options - Which account and framework file to use.
+ * @throws If the account doesn't exist or the framework file is invalid.
+ */
 export async function runSeed(prisma: PrismaClient, options: SeedOptions) {
   // Grab the user based on the email provided in the options
   const user = await findSeedUser(prisma, options.email);
