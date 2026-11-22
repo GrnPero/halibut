@@ -58,18 +58,33 @@ export type SeedOptions = {
 // The file starts with a block of three numbers between "---" lines, then the
 // framework text.
 export function readFrameworkFile(path: string): FrameworkFile {
-  const raw = readFileSync(path, "utf8");
+  let raw: string;
+
+  try {
+    raw = readFileSync(path, "utf8");
+  } catch (error) {
+    throw new Error(`Can't read framework file ${path}`, { cause: error });
+  }
+
+  if (!raw.trim()) throw new Error(`Framework file ${path} is empty`);
+
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+
   if (!match)
     throw new Error(`${path} must start with a --- block of salary numbers`);
+
   const numbers: Record<string, number> = {};
+
   for (const line of match[1].split(/\r?\n/)) {
     const pair = line.match(/^\s*(\w+)\s*:\s*(\d+)\s*$/);
+
     if (pair) numbers[pair[1]] = Number(pair[2]);
   }
+
   for (const key of ["salaryIdealMin", "salaryPreferredMin", "salaryFloor"]) {
     if (!(key in numbers)) throw new Error(`${path} is missing ${key}`);
   }
+
   return {
     content: match[2].trim(),
     salaryIdealMin: numbers.salaryIdealMin,
@@ -80,10 +95,12 @@ export function readFrameworkFile(path: string): FrameworkFile {
 
 async function findSeedUser(prisma: PrismaClient, email: string) {
   const user = await prisma.user.findUnique({ where: { email } });
+
   if (!user)
     throw new Error(
       `No account for ${email}. Create the account first, then run the seed.`,
     );
+
   return user;
 }
 
@@ -95,6 +112,7 @@ async function seedSearchAreas(prisma: PrismaClient, userId: string) {
       create: { ...area, userId },
     });
   }
+
   console.log(
     `Search areas for this user: ${await prisma.searchArea.count({ where: { userId } })}`,
   );
@@ -106,26 +124,34 @@ async function seedFramework(
   path: string,
 ) {
   const file = readFrameworkFile(path);
+
   const latest = await prisma.framework.findFirst({
     where: { userId },
     orderBy: { createdAt: "desc" },
   });
+
   const unchanged =
     latest !== null &&
     latest.content === file.content &&
     latest.salaryIdealMin === file.salaryIdealMin &&
     latest.salaryPreferredMin === file.salaryPreferredMin &&
     latest.salaryFloor === file.salaryFloor;
+
   if (unchanged) {
     console.log(`Framework unchanged (${path})`);
+
     return;
   }
+
   await prisma.framework.create({ data: { ...file, userId } });
   console.log(`Saved a new framework version from ${path}`);
 }
 
 export async function runSeed(prisma: PrismaClient, options: SeedOptions) {
+  // Grab the user based on the email provided in the options
   const user = await findSeedUser(prisma, options.email);
+
+  // Seed the search areas and framework for that user
   await seedSearchAreas(prisma, user.id);
   await seedFramework(prisma, user.id, options.frameworkPath);
 }

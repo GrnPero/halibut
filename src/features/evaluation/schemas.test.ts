@@ -12,6 +12,7 @@ const sections = Object.keys(jobEvaluationSchema.shape);
 // reason it is about.
 function issuePaths(input: unknown) {
   const result = jobEvaluationSchema.safeParse(input);
+
   return result.success ? [] : result.error.issues.map((issue) => issue.path);
 }
 
@@ -22,6 +23,7 @@ describe("jobEvaluationSchema", () => {
 
   test.each(sections)("rejects an evaluation missing %s", (section) => {
     const input: Record<string, unknown> = structuredClone(validJobEvaluation);
+
     delete input[section];
 
     expect(issuePaths(input)).toEqual([[section]]);
@@ -59,6 +61,7 @@ describe("jobEvaluationSchema", () => {
 
     test("rejects a finding with no basis", () => {
       const findingWithoutBasis: Record<string, unknown> = { ...firstFinding };
+
       delete findingWithoutBasis.basis;
 
       expect(issuePaths(withFirstFinding(findingWithoutBasis))).toEqual([

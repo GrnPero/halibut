@@ -149,6 +149,7 @@ export function annualize(
   period: SalaryPeriod | null,
 ): number | null {
   if (amount === null || period === null) return null;
+
   return period === "hour" ? Math.round(amount * HOURS_PER_YEAR) : amount;
 }
 
@@ -160,8 +161,12 @@ export function salaryTier(
   thresholds: SalaryThresholds,
 ): SalaryTier {
   if (annualAmount === null) return "unlisted";
+
   if (annualAmount >= thresholds.salaryIdealMin) return "ideal";
+
   if (annualAmount >= thresholds.salaryPreferredMin) return "preferred_minimum";
+
   if (annualAmount >= thresholds.salaryFloor) return "below_target";
+
   return "usually_pass";
 }

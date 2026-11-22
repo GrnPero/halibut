@@ -25,11 +25,14 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const email = process.env.SEED_USER_EMAIL;
+
   if (!email)
     throw new Error("Set SEED_USER_EMAIL in .env to the account to seed.");
+
   const frameworkPath = existsSync(PRIVATE_FRAMEWORK)
     ? PRIVATE_FRAMEWORK
     : EXAMPLE_FRAMEWORK;
+
   await runSeed(prisma, { email, frameworkPath });
 }
 

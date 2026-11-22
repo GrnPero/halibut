@@ -13,6 +13,7 @@ import { assertTestDatabaseUrl } from "../helpers/test-database-url";
 
 export default function setup() {
   const url = assertTestDatabaseUrl(process.env.DATABASE_URL_TEST);
+
   // prisma.config.ts reads DATABASE_URL; dotenv doesn't override a variable
   // that is already set, so the child process sees the test database.
   execFileSync("npx", ["prisma", "migrate", "deploy"], {

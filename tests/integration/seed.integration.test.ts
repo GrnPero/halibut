@@ -40,12 +40,14 @@ describe("runSeed", () => {
     const areas = await testPrisma.searchArea.findMany({
       where: { userId: user.id },
     });
+
     expect(areas.map((area) => area.label).sort()).toEqual(
       SEARCH_AREAS.map((area) => area.label).sort(),
     );
     const frameworks = await testPrisma.framework.findMany({
       where: { userId: user.id },
     });
+
     expect(frameworks).toHaveLength(1);
     expect(frameworks[0]).toMatchObject(readFrameworkFile(EXAMPLE_FRAMEWORK));
   });
@@ -63,6 +65,7 @@ describe("runSeed", () => {
 
   it("adds a framework version when the file changes", async () => {
     const user = await createTestUser();
+
     await runSeed(testPrisma, {
       email: user.email,
       frameworkPath: EXAMPLE_FRAMEWORK,
@@ -70,6 +73,7 @@ describe("runSeed", () => {
 
     const changedPath = join(tempDir, "framework.md");
     const original = await readFile(EXAMPLE_FRAMEWORK, "utf8");
+
     await writeFile(changedPath, `${original}\n${CHANGED_FRAMEWORK_LINE}\n`);
     await runSeed(testPrisma, {
       email: user.email,
@@ -79,10 +83,12 @@ describe("runSeed", () => {
     const frameworks = await testPrisma.framework.findMany({
       where: { userId: user.id },
     });
+
     expect(frameworks).toHaveLength(2);
     const changed = frameworks.filter((framework) =>
       framework.content.includes(CHANGED_FRAMEWORK_LINE),
     );
+
     expect(changed).toHaveLength(1);
     expect(await testPrisma.searchArea.count()).toBe(SEARCH_AREAS.length);
   });

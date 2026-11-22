@@ -45,6 +45,7 @@ describe("createTestUser", () => {
 describe("truncateAll", () => {
   it("empties every table, including rows that reference the user", async () => {
     const user = await createTestUser();
+
     await testPrisma.searchArea.create({
       data: {
         userId: user.id,
@@ -66,6 +67,7 @@ describe("truncateAll", () => {
     const [{ count }] = await testPrisma.$queryRawUnsafe<[{ count: bigint }]>(
       `SELECT count(*) FROM "${PRISMA_MIGRATIONS_TABLE}"`,
     );
+
     expect(Number(count)).toBeGreaterThan(0);
   });
 });

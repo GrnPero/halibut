@@ -42,8 +42,11 @@ export async function truncateAll() {
     SELECT tablename FROM pg_tables
     WHERE schemaname = 'public' AND tablename <> ${PRISMA_MIGRATIONS_TABLE}
   `;
+
   if (tables.length === 0) return;
+
   const list = tables.map(({ tablename }) => `"public"."${tablename}"`);
+
   await testPrisma.$executeRawUnsafe(
     `TRUNCATE TABLE ${list.join(", ")} RESTART IDENTITY CASCADE`,
   );
