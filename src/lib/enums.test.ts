@@ -36,6 +36,7 @@ describe("prisma/schema.prisma agrees with enums.ts", () => {
     dirname(fileURLToPath(import.meta.url)),
     "../../prisma/schema.prisma",
   );
+
   const MODEL_LINE = /^model\s+(\w+)\s*\{/;
   // Every enum column ends with a comment like "// WorkMode in enums.ts".
   const ENUM_MARKER = /\/\/\s*(\w+) in enums\.ts/;
@@ -57,12 +58,15 @@ describe("prisma/schema.prisma agrees with enums.ts", () => {
   // One entry per field line that names an enum or has a string default.
   const columns: Column[] = [];
   let model = "";
+
   for (const line of readFileSync(SCHEMA_PATH, "utf8").split("\n")) {
     model = line.match(MODEL_LINE)?.[1] ?? model;
     const enumName = line.match(ENUM_MARKER)?.[1] ?? null;
     const defaultValue = line.match(STRING_DEFAULT)?.[1] ?? null;
+
     if (enumName !== null || defaultValue !== null) {
       const field = line.trim().split(/\s+/)[0];
+
       columns.push({ column: `${model}.${field}`, enumName, defaultValue });
     }
   }
@@ -70,6 +74,7 @@ describe("prisma/schema.prisma agrees with enums.ts", () => {
   const enumColumns = columns.filter(
     (c): c is Column & { enumName: string } => c.enumName !== null,
   );
+
   const enumDefaults = enumColumns.filter(
     (c): c is Column & { enumName: string; defaultValue: string } =>
       c.defaultValue !== null,

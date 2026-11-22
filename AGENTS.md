@@ -24,13 +24,16 @@ src/
     server/*.service.ts     classes with dependencies   ≈ app/Domain/X/Services
     server/queries.ts       the feature's queries       ≈ repository / Eloquent scopes
     schemas.ts              Zod schemas                 ≈ Form Request rules
+    types.ts                types shared inside the feature (only once two files need one)
     *.test.ts               unit tests, next to the file they test
   server/                   shared infrastructure only: db, llm, auth, session, config
   lib/                      shared, framework-free code (enums.ts, messages.ts)
 tests/
   setup.ts                  runs before every test file (jest-dom matchers, cleanup)
   helpers/                  shared fakes and fixtures       ≈ factories
-prisma/                     schema.prisma, seed.ts, migrations
+    db.ts                   testPrisma, createTestUser(), truncateAll()  ≈ RefreshDatabase
+  integration/              *.integration.test.ts against halibut_test (npm run test:integration)
+prisma/                     schema.prisma, seed.ts (entry), seeder.ts (the steps), migrations
 prompts/                    job-evaluation-framework.example.md (the real one is git-ignored)
 generated/                  the generated Prisma client (git-ignored)
 ```
@@ -49,6 +52,7 @@ npm run dev                   # http://localhost:3000
 npm run build && npm run lint
 npm run typecheck             # next typegen && tsc --noEmit
 npm test                      # Vitest, once; npm run test:watch reruns on change
+npm run test:integration      # integration tests against halibut_test (needs DATABASE_URL_TEST and db:up)
 npm run format                # Prettier; format:check only lists unformatted files
 ```
 
@@ -72,8 +76,30 @@ If another Postgres already holds port 5432, Prisma connects to it and fails wit
 - **Files under any `server/` folder start with `import "server-only"`.**
 - **No barrel `index.ts` files.** Import from the file that defines the thing.
 - **Reuse goes through the owning feature's `server/`.** When a second feature needs something, promote it there (or to `src/server/` if it's infrastructure). Don't copy it.
+- **Types live with their owner; never a global `types.ts`.** Move a type up only when something needs it:
+  1. Derive first: `Pick<Model, …>` from `@generated/prisma/client` for table shapes, `z.infer<typeof schema>` from `schemas.ts` for validated input.
+  2. Used by one file: define it in that file.
+  3. Shared inside a feature: `src/features/<feature>/types.ts`.
+  4. Needed by another feature: import it from the owning feature. Don't copy it.
+  5. Infrastructure (db, llm, auth): next to its code in `src/server/<area>/`.
+  6. `.d.ts` files only for augmenting a library's types.
 - **Rules hide jobs; the LLM only annotates them.** Nothing an LLM or an email produces triggers an action beyond creating job stubs. Jobs are hidden by explicit rules (salary floor, Not interested), never deleted, and never removed by the model.
 - **JSearch requests are spent only when Search more is clicked.**
+
+## Code style
+
+- **Every exported function, class, method and type gets a TSDoc comment** (TypeScript's PHPDoc). One summary line, then `@param name - …`, `@returns` and `@throws` where they apply. Don't repeat types in the tags; the signature has them.
+  ```ts
+  /**
+   * Reads the framework file and splits off its salary numbers.
+   *
+   * @param path - Path to the framework Markdown file.
+   * @returns The framework text and its three salary numbers.
+   * @throws If the file can't be read, is empty or has no salary block.
+   */
+  ```
+- **Comments are short and to the point.** One line where one line does it; no paragraphs. Inline `//` comments explain why, not what.
+- **Blank lines between steps:** after declarations, around blocks, after any `if` and before `return`. `@stylistic/padding-line-between-statements` enforces it; `npx eslint --fix` adds them.
 
 ## How we work
 

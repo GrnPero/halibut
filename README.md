@@ -28,8 +28,8 @@ src/
   features/evaluation/    schemas.ts: the framework evaluation (Zod)
   server/db/              prisma.ts: the shared Prisma client (server-only)
   lib/                    enums.ts: allowed values for every "kind" column
-tests/          Vitest setup and shared test fixtures (unit tests sit next to the code)
-prisma/         schema.prisma and seed.ts; migrations land here
+tests/          Vitest setup, shared fixtures and DB helpers, and integration/ (unit tests sit next to the code)
+prisma/         schema.prisma, seed.ts (entry) and seeder.ts (the steps); migrations land here
 prompts/        job-evaluation-framework.example.md (your real one is git-ignored)
 docs/           design doc, screen spec, open questions, schema diagram
 generated/      the generated Prisma client (git-ignored)
@@ -84,6 +84,12 @@ In psql, `\dt` lists the tables, `\dx` lists the extensions (`vector` should be 
 Run `npm run typecheck` to typecheck. It runs `npx next typegen` first, because `tsc --noEmit` needs Next.js's route types.
 
 Run `npm test` to run the unit tests once (CI runs it), or `npm run test:watch` to rerun them as you edit. Tests use Vitest and sit next to the file they test as `*.test.ts`. They need no database.
+
+Run `npm run test:integration` to run the integration tests (CI runs them too). They live in `tests/integration/` as `*.integration.test.ts` and run against a real database, `halibut_test`, on the same Docker Postgres. Set `DATABASE_URL_TEST` in `.env` (`.env.example` has the value), start the database with `npm run db:up`, then run the command. The first run creates `halibut_test`. Every run applies any new migrations with `prisma migrate deploy`, and each test starts with empty tables. The tests refuse to run against a database whose name doesn't end in `_test`. If you edit a migration that was already applied, drop the test database once and the next run rebuilds it:
+
+```sh
+docker exec halibut-db dropdb -U halibut halibut_test
+```
 
 Prettier formats the code. `npm install` sets up a pre-commit hook that formats staged files, `npm run format` formats the whole repo, and `npm run format:check` lists unformatted files (CI runs it). To keep `git blame` from pointing at the one-time format commit, run this once per clone:
 
