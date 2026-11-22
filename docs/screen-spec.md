@@ -7,7 +7,7 @@ These are loose screen ideas, not final designs. See **Open questions** and **De
 
 ## Global layout
 
-Shared layout in `src/app/layout.tsx`, used by every page:
+Shared layout in `src/app/(main)/layout.tsx`, used by every page except `/login`, which gets the bare centered `src/app/(auth)/layout.tsx`. The nav and page header live in `src/components/layout/`:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -22,10 +22,10 @@ Shared layout in `src/app/layout.tsx`, used by every page:
 ### Nav (global, identical everywhere)
 
 - **Left: logo slot + "Halibut" wordmark.**
-  - For now: the halibut favicon at ~28–32px.
-  - Later: a hand-drawn halibut (the girlfriend's art). Keep the slot square, and keep the logo in a single file (`public/logo.svg` or `.png`) so swapping it is a one-file change.
-- **Center/left: nav links:** Jobs (`/`), Applications (`/applications`). Highlight the active link.
-- **Right: Upload Resume** (opens the modal) and **Sign out**.
+  - For now: Lucide's "fish" icon at 32px, in `public/logo.svg`. It follows the OS light/dark theme.
+  - Later: a hand-drawn halibut (the girlfriend's art). Keep the slot square, and replace `public/logo.svg` so swapping it is a one-file change.
+- **Center/left: nav links:** Jobs (`/`), Applications (`/applications`). Highlight the active link; Jobs stays highlighted on `/jobs/[id]`.
+- **Right: Upload Resume** (opens the modal, sc-190) and **Sign out** (sc-176). Both render now but do nothing until those stories.
 - No per-page buttons in the nav.
 
 ### Page header (per page)

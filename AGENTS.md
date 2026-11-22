@@ -27,6 +27,7 @@ src/
     types.ts                types shared inside the feature (only once two files need one)
     *.test.ts               unit tests, next to the file they test
   components/ui/            shadcn/ui components, as the CLI writes them (vendored; see Code style)
+  components/layout/        the app shell: Nav, NavLinks, PageHeader
   server/                   shared infrastructure only: db, llm, auth, session, config
   lib/                      shared, framework-free code (enums.ts, messages.ts, utils.ts with cn())
 tests/
