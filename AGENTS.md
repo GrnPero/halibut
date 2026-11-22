@@ -26,8 +26,9 @@ src/
     schemas.ts              Zod schemas                 ≈ Form Request rules
     types.ts                types shared inside the feature (only once two files need one)
     *.test.ts               unit tests, next to the file they test
+  components/ui/            shadcn/ui components, as the CLI writes them (vendored; see Code style)
   server/                   shared infrastructure only: db, llm, auth, session, config
-  lib/                      shared, framework-free code (enums.ts, messages.ts)
+  lib/                      shared, framework-free code (enums.ts, messages.ts, utils.ts with cn())
 tests/
   setup.ts                  runs before every test file (jest-dom matchers, cleanup)
   helpers/                  shared fakes and fixtures       ≈ factories
@@ -54,7 +55,10 @@ npm run typecheck             # next typegen && tsc --noEmit
 npm test                      # Vitest, once; npm run test:watch reruns on change
 npm run test:integration      # integration tests against halibut_test (needs DATABASE_URL_TEST and db:up)
 npm run format                # Prettier; format:check only lists unformatted files
+npx shadcn@latest add <name>  # add a shadcn/ui component to src/components/ui (Rodrigo runs it)
 ```
+
+Tailwind loads through the `@tailwindcss/turbopack` loader in `next.config.ts`; there is no PostCSS config, and shadcn doesn't need one. The Turbopack build cache is off (`turbopackFileSystemCacheForBuild: false`) because it sometimes served stale CSS from that loader. Dark mode follows the OS (`prefers-color-scheme`), not a `.dark` class.
 
 If another Postgres already holds port 5432, Prisma connects to it and fails with errors like `type "vector" does not exist`. Stop that server first; the README has the details.
 
@@ -87,6 +91,8 @@ If another Postgres already holds port 5432, Prisma connects to it and fails wit
 - **JSearch requests are spent only when Search more is clicked.**
 
 ## Code style
+
+`src/components/ui/` is vendored shadcn/ui code: keep it as the CLI writes it, so the rules below don't apply there and Prettier ignores it. Wrap or compose those components elsewhere instead of editing them.
 
 - **Every exported function, class, method and type gets a TSDoc comment** (TypeScript's PHPDoc). One summary line, then `@param name - …`, `@returns` and `@throws` where they apply. Don't repeat types in the tags; the signature has them.
   ```ts

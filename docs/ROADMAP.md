@@ -1,6 +1,6 @@
 # Halibut roadmap
 
-As of 2026-11-20. Shortcut epic [161](https://app.shortcut.com/personal-projects-15/epic/161) "Halibut - MVP" is the source of truth, and its description carries the same phase list. This file is the summary and the planned order.
+As of 2026-11-21. Shortcut epic [161](https://app.shortcut.com/personal-projects-15/epic/161) "Halibut - MVP" is the source of truth, and its description carries the same phase list. This file is the summary and the planned order.
 
 ## Phases
 
@@ -26,7 +26,7 @@ Before any feature work.
 
 - [x] sc-170: first migration (pgvector) (PR #8)
 - [x] sc-171: integration test harness (PR #9)
-- [ ] sc-172: shadcn/ui install
+- [x] sc-172: shadcn/ui install (PR #10)
 - [ ] sc-173: global layout, nav, route groups, after sc-172
 
 ### 3. Users and login

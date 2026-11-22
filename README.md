@@ -18,7 +18,7 @@ The full design is in [`docs/design.md`](docs/design.md), the screens in [`docs/
 
 ## Stack
 
-Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tailwind CSS 4, shadcn/ui (planned), PostgreSQL 16 with pgvector in Docker, Prisma 7 with the `pg` driver adapter, Better Auth (planned), the Vercel AI SDK with Claude and OpenAI (planned), and Zod.
+Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tailwind CSS 4, shadcn/ui, PostgreSQL 16 with pgvector in Docker, Prisma 7 with the `pg` driver adapter, Better Auth (planned), the Vercel AI SDK with Claude and OpenAI (planned), and Zod.
 
 ## Layout
 

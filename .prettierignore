@@ -6,3 +6,6 @@ package-lock.json
 .agents/
 .claude/skills/
 .windsurf/
+
+# shadcn/ui components, kept as the CLI writes them
+src/components/ui/
