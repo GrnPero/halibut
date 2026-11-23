@@ -12,7 +12,9 @@
 //   Their id defaults use `gen_random_uuid()`, not the generator's
 //   `pg_catalog.gen_random_uuid()`: Postgres stores the default without the
 //   prefix, so the prefixed form makes every `migrate dev` report drift.
-//   Drop the prefix again after regenerating.
+//   Drop the prefix again after regenerating. These four are UUIDv4, filled by
+//   Postgres: src/server/auth.ts sets Better Auth's `generateId: "uuid"`, so
+//   Better Auth leaves `id` out of its inserts.
 // - No database-level enums. Every "kind of thing" column is plain String; the
 //   allowed values live in src/lib/enums.ts (Zod). Validate before every write.
 // - pgvector: the first migration must run `CREATE EXTENSION IF NOT EXISTS vector;`

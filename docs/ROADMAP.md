@@ -1,6 +1,6 @@
 # Halibut roadmap
 
-As of 2026-11-22. Shortcut epic [161](https://app.shortcut.com/personal-projects-15/epic/161) "Halibut - MVP" is the source of truth, and its description carries the same phase list. This file is the summary and the planned order.
+As of 2026-11-23. Shortcut epic [161](https://app.shortcut.com/personal-projects-15/epic/161) "Halibut - MVP" is the source of truth, and its description carries the same phase list. This file is the summary and the planned order.
 
 ## Phases
 
@@ -31,7 +31,7 @@ Before any feature work.
 
 ### 3. Users and login
 
-- [ ] sc-174: Better Auth config
+- [x] sc-174: Better Auth config (PR #12)
 - [ ] sc-175: `user:create` command, after sc-174
 - [ ] sc-176: login page + Sign out, after sc-175
 - [ ] sc-177: `proxy.ts`, `verifySession()`, user-scoped Prisma client (global scope), after sc-176

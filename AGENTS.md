@@ -67,6 +67,7 @@ If another Postgres already holds port 5432, Prisma connects to it and fails wit
 
 - **Never commit `.env`, resumes, the applications CSV or `prompts/job-evaluation-framework.md`.** The repo is public. Run `git diff --cached --name-only` before every commit. No real personal data in fixtures or anywhere in the repo: no resumes, no sheet rows, no salary thresholds.
 - **No magic numbers or strings.** Tunable values go in `src/server/config.ts`, read from env vars with a default. User-facing text goes in `src/lib/messages.ts`. (The first story that needs either file creates it.) Tests import the same constants instead of repeating literals.
+- **Changing `BETTER_AUTH_SECRET` breaks stored Google tokens.** Better Auth encrypts them with it, so every user would have to link Google again. Keep the secret once anyone has linked Gmail.
 - **The user comes from Laravel.** When they bring up a Laravel feature (config, validation, middleware, queues, scheduling, Eloquent, global scopes, lang files, Pest/PHPUnit, …), name the equivalent here, or say plainly that none exists and what the closest option is.
 
 ## Architecture
