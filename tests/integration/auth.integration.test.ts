@@ -55,10 +55,11 @@ describe("user IDs", () => {
   it("are uuids filled in by the database", async () => {
     const { internalAdapter } = await auth.$context;
 
-    const user = await internalAdapter.createUser({
-      name: NEW_ACCOUNT.name,
-      email: NEW_ACCOUNT.email,
-    });
+    // "admin": created by us, as sc-175's account command will, not by sign-up.
+    const user = await internalAdapter.createUser(
+      { name: NEW_ACCOUNT.name, email: NEW_ACCOUNT.email },
+      { method: "admin" },
+    );
 
     expect(z.uuid().safeParse(user.id).success).toBe(true);
     expect(
