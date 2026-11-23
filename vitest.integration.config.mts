@@ -7,6 +7,7 @@
 // database whose name doesn't end in _test, then applies the migrations.
 
 import "dotenv/config";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
 // Each test and hook talks to Postgres, so allow more than Vitest's 5 s.
@@ -14,7 +15,15 @@ const INTEGRATION_TEST_TIMEOUT_MS = 30_000;
 
 export default defineConfig({
   // Resolves the @/*, @tests/* and @generated/* aliases from tsconfig.json.
-  resolve: { tsconfigPaths: true },
+  resolve: {
+    tsconfigPaths: true,
+    // Server files start with `import "server-only"`, which throws outside Next.js.
+    alias: {
+      "server-only": fileURLToPath(
+        new URL("./tests/helpers/server-only.ts", import.meta.url),
+      ),
+    },
+  },
   test: {
     environment: "node",
     include: ["tests/integration/**/*.integration.test.ts"],
