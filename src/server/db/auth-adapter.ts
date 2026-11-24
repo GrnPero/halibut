@@ -11,4 +11,9 @@ import { prisma } from "./prisma";
  * the user-scoped client. Building the adapter here keeps the plain client
  * inside `src/server/db/`.
  */
-export const authDatabase = prismaAdapter(prisma, { provider: "postgresql" });
+export const authDatabase = prismaAdapter(prisma, {
+  provider: "postgresql",
+  // Off by default, which makes Better Auth's runWithTransaction run each step
+  // on its own; on, a multi-step write rolls back as a whole.
+  transaction: true,
+});

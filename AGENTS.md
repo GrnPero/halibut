@@ -35,6 +35,7 @@ tests/
   helpers/                  shared fakes and fixtures       ≈ factories
     db.ts                   testPrisma, createTestUser(), truncateAll()  ≈ RefreshDatabase
   integration/              *.integration.test.ts against halibut_test (npm run test:integration)
+scripts/                    CLI entry points run with tsx (thin)       ≈ Artisan commands
 prisma/                     schema.prisma, seed.ts (entry), seeder.ts (the steps), migrations
 prompts/                    job-evaluation-framework.example.md (the real one is git-ignored)
 generated/                  the generated Prisma client (git-ignored)
@@ -50,6 +51,7 @@ npm run db:migrate            # apply migrations, then regenerate the Prisma cli
 npm run db:seed
 npm run db:reset              # drop everything and re-apply the migrations (wipes local data; doesn't seed)
 npm run db:studio             # browse the tables
+npm run user:create -- --email you@example.com --name "Your Name"   # create an account; prompts for the password
 npm run dev                   # http://localhost:3000
 npm run build && npm run lint
 npm run typecheck             # next typegen && tsc --noEmit
@@ -66,13 +68,14 @@ If another Postgres already holds port 5432, Prisma connects to it and fails wit
 ## Rules
 
 - **Never commit `.env`, resumes, the applications CSV or `prompts/job-evaluation-framework.md`.** The repo is public. Run `git diff --cached --name-only` before every commit. No real personal data in fixtures or anywhere in the repo: no resumes, no sheet rows, no salary thresholds.
-- **No magic numbers or strings.** Tunable values go in `src/server/config.ts`, read from env vars with a default. User-facing text goes in `src/lib/messages.ts`. (The first story that needs either file creates it.) Tests import the same constants instead of repeating literals.
+- **No magic numbers or strings.** Tunable values go in `src/server/config.ts`, read from env vars with a default. User-facing text goes in `src/lib/messages.ts`. Tests import the same constants instead of repeating literals.
 - **Changing `BETTER_AUTH_SECRET` breaks stored Google tokens.** Better Auth encrypts them with it, so every user would have to link Google again. Keep the secret once anyone has linked Gmail.
 - **The user comes from Laravel.** When they bring up a Laravel feature (config, validation, middleware, queues, scheduling, Eloquent, global scopes, lang files, Pest/PHPUnit, …), name the equivalent here, or say plainly that none exists and what the closest option is.
 
 ## Architecture
 
-- **`src/app/` stays thin.** Pages, Server Actions and Route Handlers get the scoped client, call a service, and respond. Business logic lives in `src/features/`.
+- **Entry points stay thin.** Pages, Server Actions, Route Handlers and `scripts/` (≈ Laravel controllers and Artisan commands) read input, call a service, and respond. Business logic goes in a service in `src/features/` from the start, even when only one caller uses it today, so the next caller reuses it instead of copying it.
+- **Multi-step writes run in one transaction** (≈ `DB::transaction(fn)`): Prisma's `$transaction(async (tx) => …)`, or `runWithTransaction(ctx.adapter, …)` for Better Auth internal-adapter writes (real only because its Prisma adapter has `transaction: true`). Never clean up with compensating deletes. Keep network calls and hashing outside the transaction.
 - **Anything with dependencies is a service class** in `src/features/<feature>/server/*.service.ts`, one class per concern, with its dependencies (the scoped Prisma client, a model) passed to the constructor.
 - **Stateless steps are plain exported functions** that take their dependencies as arguments.
 - **User scoping is automatic.** Feature code uses `getDb()` (sc-177), the user-scoped Prisma client. Like a Laravel global scope (`#[ScopedBy]`) on every model, it adds `userId` to every query, so feature code never writes `userId` itself.

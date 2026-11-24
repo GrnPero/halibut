@@ -32,7 +32,7 @@ Before any feature work.
 ### 3. Users and login
 
 - [x] sc-174: Better Auth config (PR #12)
-- [ ] sc-175: `user:create` command, after sc-174
+- [x] sc-175: `user:create` command (PR #13)
 - [ ] sc-176: login page + Sign out, after sc-175
 - [ ] sc-177: `proxy.ts`, `verifySession()`, user-scoped Prisma client (global scope), after sc-176
 
