@@ -55,9 +55,10 @@ export class AccountError extends Error {
     const tooShort = password.find((issue) => issue.code === "too_small");
     const tooLong = password.find((issue) => issue.code === "too_big");
 
+    // The first issue is the message; the rest, if any, are the details.
     if (other.length > 0)
       return new AccountError("INVALID_INPUT", other[0].message, {
-        details: other.map((issue) => issue.message),
+        details: other.slice(1).map((issue) => issue.message),
       });
 
     if (tooShort)

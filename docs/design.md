@@ -125,6 +125,8 @@ however it is triggered.
   (`npx auth@latest generate`, version 1.7.25) and are used as generated.
 - **Config.** `src/server/auth.ts` holds the Better Auth instance:
   - sign-up off, `encryptOAuthTokens: true`
+  - `minPasswordLength`/`maxPasswordLength` from `src/server/config.ts`
+    (`PASSWORD_MIN_LENGTH`, default 15; `PASSWORD_MAX_LENGTH`, default 128)
   - `generateId: "uuid"`: Better Auth leaves `id` out of its inserts and
     Postgres fills it. Its default, a base62 string, would be rejected by the
     `uuid` columns.
@@ -132,16 +134,38 @@ however it is triggered.
 
   It reads `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` from the environment.
   Its Prisma adapter is built in `src/server/db/auth-adapter.ts`, because the
-  plain client stays inside `src/server/db/`. `src/app/api/auth/[...all]/route.ts`
+  plain client stays inside `src/server/db/`. The adapter has
+  `transaction: true`; without it, Better Auth's `runWithTransaction` runs each
+  step on its own and a failed step leaves the earlier ones behind. `src/app/api/auth/[...all]/route.ts`
   serves `/api/auth/*`, and `src/lib/auth-client.ts` is the browser client for
   the login form.
 
 - **No sign-up page.** `emailAndPassword.disableSignUp` is on. Tested: with it
-  on, Better Auth's own sign-up call is refused even from server code, so the
-  account-creation command has to use Better Auth's internal adapter (create the
-  user, then link a `credential` account holding the hashed password). That
-  adapter is internal to Better Auth, so check it after upgrades. Signing in
-  with the created account was tested and works; a wrong password is rejected.
+  on, Better Auth's own sign-up call is refused even from server code. Accounts
+  come from `npm run user:create -- --email … --name …` instead
+  (`scripts/user-create.ts`, run with `tsx --conditions=react-server` so
+  `server-only` resolves). It prompts for the password twice without echoing
+  it and never takes it as an argument. The logic is in `AccountService`
+  (`src/features/auth/server/account.service.ts`):
+  1. Validate with `createUserSchema`. The password needs 15–128 characters
+     and at least one lowercase letter, uppercase letter, digit and symbol;
+     any character, including spaces and Unicode, is allowed, and it is never
+     trimmed.
+  2. Check the password against Have I Been Pwned with Better Auth's
+     `isPasswordCompromised()`, which sends only a 5-character SHA-1 prefix.
+     It fails closed: if the check can't run, no account is created.
+  3. Hash it with Better Auth's hasher.
+  4. In one `runWithTransaction`: refuse a taken email, create the user, and
+     link a `credential` account holding the hash. This is what Better Auth's
+     admin plugin does, through its internal adapter, so check it after every
+     Better Auth upgrade. `better-auth` and `@better-auth/core` are pinned to
+     the same exact version for that reason.
+
+  Failures throw an `AccountError` with a code; database errors become
+  `DATABASE_ERROR` after the rollback. Tested: the created account signs in, a
+  wrong password is rejected, and a failed credential insert rolls the user
+  back.
+
 - **Route protection.** `proxy.ts` (Next.js 16's name for middleware) sends
   anyone without a session cookie to `/login`. Following the Next.js docs, it is
   not the only check: every Server Action and Route Handler calls a
@@ -636,8 +660,9 @@ Describes the repo after the pull request that adds this document (branch
 | Prisma client             | `src/server/db/prisma.ts` creates one client with the `PrismaPg` adapter and reuses it across hot reloads. It imports `server-only`, so client code can't import it. This is the client every server file should import                                                                                                                                                                                                                                                                                                                               |
 | Prisma config             | `prisma.config.ts` reads `DATABASE_URL`, sets the migrations folder, and runs `prisma/seed.ts` with `tsx` for `prisma db seed`                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Schema                    | `prisma/schema.prisma` has the ten Halibut models and Better Auth's four. The client is generated to `generated/prisma` at the repo root, which is ignored by git, and imported as `@generated/prisma/client`                                                                                                                                                                                                                                                                                                                                         |
-| Auth                      | `better-auth` 1.7.25, configured in `src/server/auth.ts` (section 4) and served at `/api/auth/*`                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Auth                      | `better-auth` 1.7.25 (pinned exactly, with `@better-auth/core`), configured in `src/server/auth.ts` (section 4) and served at `/api/auth/*`. Accounts come from `npm run user:create` (`scripts/user-create.ts` → `AccountService`)                                                                                                                                                                                                                                                                                                                   |
 | Validation and evaluation | `src/lib/enums.ts` and `src/features/evaluation/schemas.ts`, using `zod`                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Config                    | `src/server/config.ts` holds tunable values read from env vars with defaults; so far the password length limits                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Seed                      | `prisma/seed.ts` reads `.env` and calls `runSeed()` in `prisma/seeder.ts`: three search areas and the first framework version, for the account in `SEED_USER_EMAIL`                                                                                                                                                                                                                                                                                                                                                                                   |
 | Integration tests         | `npm run test:integration` runs `tests/integration/*.integration.test.ts` with `vitest.integration.config.mts` against `halibut_test` (`DATABASE_URL_TEST`). The global setup refuses any database not named `*_test` and runs `prisma migrate deploy`; `truncateAll()` empties the tables before each test. CI runs them in an `integration` job with a pgvector service                                                                                                                                                                             |
 | Framework                 | `prompts/job-evaluation-framework.example.md` is committed. Your own `prompts/job-evaluation-framework.md` is ignored by git                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -681,8 +706,9 @@ npm run db:up
 # 4. Apply the migrations and generate the client
 npm run db:migrate
 
-# 5. Create your account with the account-creation command (not written yet;
-#    see section 4), then set SEED_USER_EMAIL in .env to that email.
+# 5. Create your account (prompts for the password; see section 4), then set
+#    SEED_USER_EMAIL in .env to that email.
+npm run user:create -- --email you@example.com --name "Your Name"
 
 # 6. Seed your search areas and first framework version
 npm run db:seed
@@ -720,13 +746,14 @@ lists them and the API keys.
 | The two SQL queries in sections 7 and 9                                                                                                                                                                   | Pass, with expected rows and distances                                                                                                                                                                                                                                                                                 |
 | `docker-compose.yml` started (`npm run db:up`)                                                                                                                                                            | Healthy; pgvector 0.8.7                                                                                                                                                                                                                                                                                                |
 | The init migration, through `npm run db:reset` on an empty database                                                                                                                                       | Applies with no errors. uuid IDs, `vector(1536)` on `Job.embedding` and `Resume.embedding`, the per-user unique indexes, and `ON DELETE CASCADE` on every `userId`. Deleting a user with a company, job, framework, evaluation and application removes all of them. `prisma migrate diff --exit-code` reports no drift |
+| `npm run user:create` on `halibut_test`, password piped on stdin                                                                                                                                          | A valid password creates the user and a `credential` account, and `npm run db:seed` then seeds it. A taken email (any case), a short, weak or breached password, a bad email and missing flags each print their error and exit 1. With Postgres stopped it prints the database error and the `npm run db:up` hint      |
 
 **Not checked:**
 
 - **Every outside service:** JSearch, Gmail, Claude and the embeddings
   provider. No ingestion or evaluation code exists yet.
-- **Signing in through the app.** No account-creation command or login page
-  exists yet (sc-175, sc-176).
+- **Signing in through the app.** Accounts can be created with
+  `npm run user:create`, but there is no login page yet (sc-176).
 
 ## 15. Risks and known limits
 
