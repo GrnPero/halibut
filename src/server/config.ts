@@ -23,12 +23,18 @@ function positiveIntFromEnv(name: string, fallback: number): number {
   return value;
 }
 
+// NIST SP 800-63B-4's minimum when a password is the only factor.
+const passwordMinLength = positiveIntFromEnv("PASSWORD_MIN_LENGTH", 15);
+// Better Auth's default maximum.
+const passwordMaxLength = positiveIntFromEnv("PASSWORD_MAX_LENGTH", 128);
+
+// Otherwise no password could pass, and every error would blame the password.
+if (passwordMinLength > passwordMaxLength)
+  throw new Error(
+    `PASSWORD_MIN_LENGTH (${passwordMinLength}) must not exceed PASSWORD_MAX_LENGTH (${passwordMaxLength})`,
+  );
+
 /** Every tunable value in the app, grouped by area. */
 export const config = {
-  auth: {
-    // NIST SP 800-63B-4's minimum when a password is the only factor.
-    passwordMinLength: positiveIntFromEnv("PASSWORD_MIN_LENGTH", 15),
-    // Better Auth's default maximum.
-    passwordMaxLength: positiveIntFromEnv("PASSWORD_MAX_LENGTH", 128),
-  },
+  auth: { passwordMinLength, passwordMaxLength },
 } as const;

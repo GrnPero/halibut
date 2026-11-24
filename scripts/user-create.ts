@@ -14,6 +14,7 @@ import { isPasswordCompromised } from "better-auth/plugins/haveibeenpwned";
 import { AccountError } from "@/features/auth/account-error";
 import { AccountService } from "@/features/auth/server/account.service";
 import { messages } from "@/lib/messages";
+import { stripControlInput } from "@/lib/terminal";
 import { auth } from "@/server/auth";
 
 const CTRL_C = "\u0003";
@@ -38,7 +39,8 @@ function readHidden(prompt: string): Promise<string> {
     let value = "";
 
     const onData = (chunk: string) => {
-      for (const char of chunk) {
+      // Arrow keys, Tab and the like would land in the password unseen.
+      for (const char of stripControlInput(chunk)) {
         if (char === CTRL_C) {
           stdout.write("\n");
           process.exit(130);
