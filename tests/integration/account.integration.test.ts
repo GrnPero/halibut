@@ -4,10 +4,8 @@
 import { APIError } from "better-auth/api";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-  AccountError,
-  AccountService,
-} from "@/features/auth/server/account.service";
+import { AccountError } from "@/features/auth/account-error";
+import { AccountService } from "@/features/auth/server/account.service";
 import { messages } from "@/lib/messages";
 import { auth } from "@/server/auth";
 import { config } from "@/server/config";

@@ -3,6 +3,7 @@ import "server-only";
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 
+import { config } from "@/server/config";
 import { authDatabase } from "@/server/db/auth-adapter";
 
 /**
@@ -15,7 +16,12 @@ import { authDatabase } from "@/server/db/auth-adapter";
  */
 export const auth = betterAuth({
   database: authDatabase,
-  emailAndPassword: { enabled: true, disableSignUp: true },
+  emailAndPassword: {
+    enabled: true,
+    disableSignUp: true,
+    minPasswordLength: config.auth.passwordMinLength,
+    maxPasswordLength: config.auth.passwordMaxLength,
+  },
   account: { encryptOAuthTokens: true },
   advanced: {
     // Leaves `id` out of inserts so Postgres's gen_random_uuid() fills it;

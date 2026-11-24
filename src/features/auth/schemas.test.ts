@@ -1,3 +1,4 @@
+import { BASE_ERROR_CODES } from "@better-auth/core/error";
 import { describe, expect, test } from "vitest";
 
 import { createUserSchema } from "@/features/auth/schemas";
@@ -58,7 +59,7 @@ describe("createUserSchema", () => {
     const password = STRONG_PREFIX.padEnd(passwordMinLength - 1, "x");
 
     expect(issueMessages({ ...validInput, password }, "password")).toEqual([
-      messages.account.errors.PASSWORD_TOO_SHORT(passwordMinLength),
+      BASE_ERROR_CODES.PASSWORD_TOO_SHORT.message,
     ]);
   });
 
@@ -66,7 +67,7 @@ describe("createUserSchema", () => {
     const password = STRONG_PREFIX.padEnd(passwordMaxLength + 1, "x");
 
     expect(issueMessages({ ...validInput, password }, "password")).toEqual([
-      messages.account.errors.PASSWORD_TOO_LONG(passwordMaxLength),
+      BASE_ERROR_CODES.PASSWORD_TOO_LONG.message,
     ]);
   });
 
